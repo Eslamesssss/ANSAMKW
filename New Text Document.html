@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="تسوق أفضل أنواع البخور الفاخرة من أنسام الكويت. اكتشف مجموعة رمضان المميزة والعروض الحصرية.">
+    <meta name="keywords" content="بخور, عطور كويتية, أنسام الكويت, عروض رمضان, هدايا فاخرة">
+    <title>أنسام الكويت - تسوق البخور الفاخر وعروض رمضان</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2F5233;
+            --gold-accent: #D4AF37;
+            --light-gray: #F5F5F5;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .kufi-font {
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(to top, rgba(255,255,255,0.9), rgba(255,255,255,0.3)), url('https://drive.google.com/uc?export=download&id=1n4kof_UrdPU5uMfHkTZ07tOhNYjA9LCd');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .carousel-container {
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .carousel-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .carousel-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .carousel-container::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .gold-shimmer {
+            background: linear-gradient(45deg, var(--gold-accent), #F4E4B1, var(--gold-accent));
+            background-size: 200% 200%;
+            animation: shimmer 3s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 200%; }
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <img src="https://drive.google.com/uc?export=download&id=1thXpL_OPlky7oCtQHREcPRC1Eqx8bhoC" alt="أنسام الكويت" class="h-12">
+                    <button class="lg:hidden">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <nav class="hidden lg:flex space-x-8 space-x-reverse">
+                        <a href="#" class="text-gray-700 hover:text-green-800 transition">الرئيسية</a>
+                        <a href="#" class="text-gray-700 hover:text-green-800 transition">المنتجات</a>
+                        <a href="#" class="text-gray-700 hover:text-green-800 transition">العروض</a>
+                        <a href="#" class="text-gray-700 hover:text-green-800 transition">من نحن</a>
+                    </nav>
+                </div>
+                
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <button class="p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                    <button class="p-2 relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 bg-green-800 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative hero-bg min-h-[600px] flex items-center">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="kufi-font text-6xl md:text-8xl mb-4 fade-in" style="color: var(--primary-green);">أنسام الكويت</h1>
+            <p class="text-xl md:text-2xl mb-2 text-gray-700 fade-in" style="animation-delay: 0.2s;">Ansam Kuwait</p>
+            <p class="text-lg mb-8 text-gray-600 fade-in" style="animation-delay: 0.4s;">عطور البخور الفاخرة من قلب الكويت</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in" style="animation-delay: 0.6s;">
+                <button class="bg-green-800 text-white px-8 py-4 rounded-lg hover:bg-green-900 transition transform hover:scale-105 shadow-lg">
+                    <span class="block text-lg font-semibold">اكتشف عروض رمضان</span>
+                    <span class="block text-sm">Discover Ramadan Offers</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Sellers Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: var(--primary-green);">
+                الأكثر مبيعاً
+                <span class="block text-lg font-normal text-gray-600 mt-2">Top Sellers</span>
+            </h2>
+            
+            <div class="relative">
+                <div class="carousel-container flex gap-6 pb-4">
+                    <!-- Product 1 -->
+                    <div class="product-card bg-white rounded-lg shadow-md min-w-[280px] overflow-hidden">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="بخور العود الملكي" class="h-64 w-full object-cover">
+                            <span class="absolute top-4 right-4 bg-green-800 text-white px-3 py-1 rounded-full text-sm">
+                                5 ساعات / 5 Hours
+                            </span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">بخور العود الملكي</h3>
+                            <p class="text-gray-600 text-sm mb-4">Royal Oud Incense</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold" style="color: var(--primary-green);">12.500 د.ك</span>
+                                <button aria-label="إضافة إلى السلة" class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-900 transition">
+                                    أضف للسلة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-card bg-white rounded-lg shadow-md min-w-[280px] overflow-hidden">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1519985176271-4f1d9a4b3b1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="بخور الصندل الأبيض" class="h-64 w-full object-cover">
+                            <span class="absolute top-4 right-4 bg-green-800 text-white px-3 py-1 rounded-full text-sm">
+                                8 ساعات / 8 Hours
+                            </span>
+                            <span class="absolute top-4 left-4 gold-shimmer text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                الأفضل
+                            </span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">بخور الصندل الأبيض</h3>
+                            <p class="text-gray-600 text-sm mb-4">White Sandalwood</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold" style="color: var(--primary-green);">18.000 د.ك</span>
+                                <button aria-label="إضافة إلى السلة" class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-900 transition">
+                                    أضف للسلة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="product-card bg-white rounded-lg shadow-md min-w-[280px] overflow-hidden">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="بخور المسك الأسود" class="h-64 w-full object-cover">
+                            <span class="absolute top-4 right-4 bg-green-800 text-white px-3 py-1 rounded-full text-sm">
+                                6 ساعات / 6 Hours
+                            </span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">بخور المسك الأسود</h3>
+                            <p class="text-gray-600 text-sm mb-4">Black Musk Incense</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold" style="color: var(--primary-green);">15.000 د.ك</span>
+                                <button aria-label="إضافة إلى السلة" class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-900 transition">
+                                    أضف للسلة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="product-card bg-white rounded-lg shadow-md min-w-[280px] overflow-hidden">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1512054502232-10a0a035d672?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="بخور العنبر الخالص" class="h-64 w-full object-cover">
+                            <span class="absolute top-4 right-4 bg-green-800 text-white px-3 py-1 rounded-full text-sm">
+                                10 ساعات / 10 Hours
+                            </span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">بخور العنبر الخالص</h3>
+                            <p class="text-gray-600 text-sm mb-4">Pure Amber Incense</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold" style="color: var(--primary-green);">22.000 د.ك</span>
+                                <button aria-label="إضافة إلى السلة" class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-900 transition">
+                                    أضف للسلة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-green-800 text-white p-2 rounded-full" onclick="carousel.scrollLeft -= 300">←</button>
+                <button class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-green-800 text-white p-2 rounded-full" onclick="carousel.scrollLeft += 300">→</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ramadan Collection -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: var(--primary-green);">
+                مجموعة رمضان المباركة
+                <span class="block text-lg font-normal text-gray-600 mt-2">Ramadan Collection</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Gift Box 1 -->
+                <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1512054502232-10a0a035d672?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="صندوق هدايا رمضان الفاخر" class="h-72 w-full object-cover">
+                        <span class="absolute top-4 right-4 gold-shimmer text-white px-4 py-2 rounded-full text-sm font-semibold inline-block">
+                            عرض خاص
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">صندوق هدايا رمضان الفاخر</h3>
+                        <p class="text-gray-600 text-sm mb-2">Luxury Ramadan Gift Box</p>
+                        <ul class="text-sm text-gray-500 mb-4 space-y-1">
+                            <li>• 3 أنواع بخور مميزة</li>
+                            <li>• مبخرة فضية أنيقة</li>
+                            <li>• فحم طبيعي</li>
+                        </ul>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-lg text-gray-400 line-through">45.000 د.ك</span>
+                                <span class="text-2xl font-bold block" style="color: var(--primary-green);">35.000 د.ك</span>
+                            </div>
+                            <button aria-label="إضافة إلى السلة" class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-900 transition">
+                                أضف للسلة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gift Box 2 -->
+                <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="مجموعة ليالي رمضان" class="h-72 w-full object-cover">
+                        <span class="absolute top-4 right-4 bg-green-800 text-white px-4 py-2 rounded-full text-sm font-semibold inline-block">
+                            الأكثر طلباً
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">مجموعة ليالي رمضان</h3>
+                        <p class="text-gray-600 text-sm mb-2">Ramadan Nights Collection</p>
+                        <ul class="text-sm text-gray-500 mb-4 space-y-1">
+                            <li>• 5 أنواع بخور فاخرة</li>
+                            <li>• عود كمبودي أصلي</li>
+                            <li>• دهن عود VIP</li>
+                        </ul>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-lg text-gray-400 line-through">65.000 د.ك</span>
+                                <span class="text-2xl font-bold block" style="color: var(--primary-green);">49.000 د.ك</span>
+                            </div>
+                            <button aria-label="إضافة إلى السلة" class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-900 transition">
+                                أضف للسلة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gift Box 3 -->
+                <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1519985176271-4f1d9a4b3b1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="باقة السلطان الملكية" class="h-72 w-full object-cover">
+                        <span class="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold inline-block">
+                            نفذت الكمية تقريباً
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">باقة السلطان الملكية</h3>
+                        <p class="text-gray-600 text-sm mb-2">Royal Sultan Package</p>
+                        <ul class="text-sm text-gray-500 mb-4 space-y-1">
+                            <li>• 10 أنواع بخور نادرة</li>
+                            <li>• مبخرة ذهبية محدودة</li>
+                            <li>• شهادة أصالة</li>
+                        </ul>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-lg text-gray-400 line-through">120.000 د.ك</span>
+                                <span class="text-2xl font-bold block" style="color: var(--primary-green);">89.000 د.ك</span>
+                            </div>
+                            <button aria-label="إضافة إلى السلة" class="bg-green-800 text-white px-4 py-2 rounded hover:bg-green-900 transition">
+                                أضف للسلة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: var(--primary-green);">
+                آراء العملاء
+                <span class="block text-lg font-normal text-gray-600 mt-2">Customer Reviews</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md text-center">
+                    <p class="text-gray-600 mb-4">"بخور رائع وثبات ممتاز!"</p>
+                    <p class="font-semibold">محمد أ. - الكويت</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md text-center">
+                    <p class="text-gray-600 mb-4">"التغليف الفاخر يجعلها هدية مثالية!"</p>
+                    <p class="font-semibold">فاطمة س. - الكويت</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md text-center">
+                    <p class="text-gray-600 mb-4">"توصيل سريع وجودة لا تضاهى!"</p>
+                    <p class="font-semibold">أحمد م. - الكويت</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="fade-in">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-green-800 rounded-full flex items-center justify-center text-white">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">جودة مضمونة</h3>
+                    <p class="text-gray-600">منتجات أصلية 100% من أجود أنواع البخور</p>
+                </div>
+                
+                <div class="fade-in" style="animation-delay: 0.2s;">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-green-800 rounded-full flex items-center justify-center text-white">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">توصيل سريع</h3>
+                    <p class="text-gray-600">خدمة توصيل لجميع مناطق الكويت</p>
+                </div>
+                
+                <div class="fade-in" style="animation-delay: 0.4s;">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-green-800 rounded-full flex items-center justify-center text-white">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">هدايا مميزة</h3>
+                    <p class="text-gray-600">تغليف فاخر مجاني لجميع الهدايا</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-16 bg-green-800 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">اشترك في نشرتنا البريدية</h2>
+            <p class="text-lg mb-8">احصل على أحدث العروض والمنتجات الجديدة</p>
+            <div class="max-w-md mx-auto flex gap-4">
+                <input type="email" placeholder="البريد الإلكتروني" class="flex-1 px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gold-500">
+                <button type="button" class="bg-white text-green-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    اشترك
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="kufi-font text-2xl mb-4">أنسام الكويت</h3>
+                    <p class="text-gray-400">عطور البخور الفاخرة من قلب الكويت</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">روابط سريعة</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">من نحن</a></li>
+                        <li><a href="#" class="hover:text-white transition">المنتجات</a></li>
+                        <li><a href="#" class="hover:text-white transition">العروض</a></li>
+                        <li><a href="#" class="hover:text-white transition">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">خدمة العملاء</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">سياسة الشحن</a></li>
+                        <li><a href="#" class="hover:text-white transition">سياسة الإرجاع</a></li>
+                        <li><a href="#" class="hover:text-white transition">الأسئلة الشائعة</a></li>
+                        <li><a href="#" class="hover:text-white transition">تتبع الطلب</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">تواصل معنا</h4>
+                    <p class="text-gray-400 mb-2">هاتف: +965 1234 5678</p>
+                    <p class="text-gray-400 mb-4">info@ansamkw.com</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">
+                            <span>f</span>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">
+                            <span>t</span>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition">
+                            <span>ig</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 أنسام الكويت. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for carousel
+        const carousel = document.querySelector('.carousel-container');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        carousel.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - carousel.offsetLeft;
+            scrollLeft = carousel.scrollLeft;
+        });
+
+        carousel.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+
+        carousel.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+
+        carousel.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - carousel.offsetLeft;
+            const walk = (x - startX) * 2;
+            carousel.scrollLeft = scrollLeft - walk;
+        });
+
+        // Add to cart animation
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('أضف للسلة')) {
+                button.addEventListener('click', function() {
+                    this.textContent = 'تمت الإضافة ✓';
+                    this.classList.add('bg-green-600');
+                    setTimeout(() => {
+                        this.textContent = 'أضف للسلة';
+                        this.classList.remove('bg-green-600');
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
