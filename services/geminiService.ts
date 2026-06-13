@@ -1,10 +1,24 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import JSZip from "jszip";
 
+const STORAGE_KEY = 'gemini_api_key';
+
+export const getStoredApiKey = (): string => {
+  return localStorage.getItem(STORAGE_KEY) || process.env.API_KEY || '';
+};
+
+export const setStoredApiKey = (key: string): void => {
+  localStorage.setItem(STORAGE_KEY, key);
+};
+
+export const clearStoredApiKey = (): void => {
+  localStorage.removeItem(STORAGE_KEY);
+};
+
 const getClient = (): GoogleGenAI => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getStoredApiKey();
   if (!apiKey) {
-    throw new Error("API Key not found. Please configure your environment variables.");
+    throw new Error("API_KEY_MISSING");
   }
   return new GoogleGenAI({ apiKey });
 };

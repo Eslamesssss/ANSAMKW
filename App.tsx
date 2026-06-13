@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Footer } from './components/Footer';
+import { ApiKeyModal } from './components/ApiKeyModal';
+import { getStoredApiKey } from './services/geminiService';
 import { PhotoRestoration } from './components/photo-tools/PhotoRestoration';
 import { ImageAngle } from './components/photo-tools/ImageAngle';
 import { GroupComposition } from './components/photo-tools/GroupComposition';
@@ -28,6 +30,7 @@ import { useLanguage } from './hooks/useLanguage';
 function App() {
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [initialToolCategory, setInitialToolCategory] = useState<string>('all');
+  const [hasApiKey, setHasApiKey] = useState<boolean>(!!getStoredApiKey());
   const languageProp = useLanguage();
 
   const handleNavigate = (view: ViewState, category?: string) => {
@@ -94,6 +97,7 @@ function App() {
 
   return (
     <main className="min-h-screen flex flex-col bg-white text-gray-900 dark:bg-eslam-black dark:text-white font-sans transition-colors duration-300 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black" dir={languageProp.language === 'ar' ? 'rtl' : 'ltr'}>
+      {!hasApiKey && <ApiKeyModal onKeySet={() => setHasApiKey(true)} />}
       <Navbar onNavigate={handleNavigate} currentView={currentView} languageProp={languageProp} />
       
       <div className="flex-grow">
