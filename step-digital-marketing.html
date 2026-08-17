@@ -178,6 +178,44 @@
             transform: translateY(-4px);
         }
 
+        /* Brand board cards. The boards are light posters of differing aspect
+           ratios, so each sits contained on a white sheet of fixed height —
+           both cards stay level and neither board gets cropped. */
+        .board-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin: 0;
+        }
+
+        .board-card:hover {
+            border-color: rgba(30, 94, 255, 0.5);
+            transform: translateY(-4px);
+        }
+
+        .board-frame {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            padding: 16px;
+            background: #f1f4fa;
+        }
+
+        .board-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        @media (min-width: 1024px) {
+            .board-frame {
+                height: 420px;
+            }
+        }
+
         .dark-section {
             background: linear-gradient(180deg, #06142D 0%, #0a1a3a 50%, #06142D 100%);
             position: relative;
@@ -690,7 +728,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 12 10 18C10 22 12 26 16 26C20 26 22 22 22 18C22 12 16 6 16 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 14L16 10L20 14" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">BOBYAN</div><div class="text-[8px] tracking-widest text-navy font-semibold">FARM</div></div>
+                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">BOUBAYAN</div><div class="text-[8px] tracking-widest text-navy font-semibold">FARM</div></div>
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 28H26L16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 20H20" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -993,15 +1031,13 @@
                 <!-- Case 2 -->
                 <div class="case-card fade-in" style="transition-delay: 0.1s;">
                     <div class="relative h-48 overflow-hidden">
-                        <div class="w-full h-full" role="img" aria-label="BOBYAN Farm" style="background: linear-gradient(135deg, #B45309 0%, #06142D 100%); display:flex; align-items:center; justify-content:center;">
-                            <svg viewBox="0 0 32 32" class="w-24 h-24" style="opacity:0.18;" fill="none"><path d="M16 6C16 6 10 12 10 18C10 22 12 26 16 26C20 26 22 22 22 18C22 12 16 6 16 6Z M12 14L16 10L20 14" stroke="white" stroke-width="1.2"/></svg>
-                        </div>
+                        <img src="assets/case-boubayan-farm.webp" alt="Date palm grove at sunrise on Boubayan Farm" class="w-full h-full object-cover" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent"></div>
                         <div class="absolute top-4 left-4 flex items-center gap-2">
                             <div class="number-badge">02</div>
                             <div class="flex items-center gap-1">
                                 <svg class="w-5 h-5 text-white" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 12 10 18C10 22 12 26 16 26C20 26 22 22 22 18C22 12 16 6 16 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 14L16 10L20 14" stroke="currentColor" stroke-width="1.5"/></svg>
-                                <div><div class="font-heading font-bold text-xs text-white tracking-wider">BOBYAN</div><div class="text-[6px] tracking-widest text-gray-300">FARM</div></div>
+                                <div><div class="font-heading font-bold text-xs text-white tracking-wider">BOUBAYAN</div><div class="text-[6px] tracking-widest text-gray-300">FARM</div></div>
                             </div>
                         </div>
                         <div class="absolute bottom-4 left-4 right-4">
@@ -1098,6 +1134,55 @@
                     View All Projects
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
+            </div>
+
+            <!-- Brand & Identity Systems -->
+            <div class="mb-16">
+                <div class="mb-8 fade-in">
+                    <span class="text-electric text-xs font-bold tracking-[0.3em] uppercase">Brand &amp; Identity</span>
+                    <h3 class="font-heading text-3xl lg:text-4xl font-extrabold text-white mt-4 mb-3">
+                        Design Systems Built <span class="text-electric">From Scratch</span>
+                    </h3>
+                    <p class="text-gray-400 max-w-2xl">Complete visual identities &mdash; palette, typography, iconography, materials and applications &mdash; documented so every touchpoint stays consistent.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <figure class="board-card fade-in">
+                        <a href="assets/auto-vision-design-system.webp" target="_blank" rel="noopener" class="board-frame">
+                            <img src="assets/auto-vision-design-system.webp" alt="Auto Vision design system board showing colour palette, typography, icon system, UI components and content style examples" loading="lazy" decoding="async">
+                        </a>
+                        <figcaption class="p-5">
+                            <div class="flex items-baseline justify-between gap-3 mb-3">
+                                <h4 class="font-heading font-bold text-white text-lg">Auto Vision</h4>
+                                <span class="text-gray-500 text-[10px] tracking-widest uppercase">Automotive</span>
+                            </div>
+                            <p class="text-gray-400 text-xs leading-relaxed mb-4">A full visual system for a luxury automotive showcase: navy and blue palette, an IBM Plex Sans Arabic type scale, a line icon set, UI components, and paired do's and don'ts that keep campaign work on-brand in both Arabic and English.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Design System</span>
+                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Brand Identity</span>
+                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Arabic Typography</span>
+                            </div>
+                        </figcaption>
+                    </figure>
+
+                    <figure class="board-card fade-in" style="transition-delay: 0.1s;">
+                        <a href="assets/bukhoor-assam-brand-board.webp" target="_blank" rel="noopener" class="board-frame">
+                            <img src="assets/bukhoor-assam-brand-board.webp" alt="Bukhoor Assam Al Kuwait brand board showing visual DNA, colour palette, typography, materials, packaging and brand applications" loading="lazy" decoding="async">
+                        </a>
+                        <figcaption class="p-5">
+                            <div class="flex items-baseline justify-between gap-3 mb-3">
+                                <h4 class="font-heading font-bold text-white text-lg">Bukhoor Assam Al Kuwait</h4>
+                                <span class="text-gray-500 text-[10px] tracking-widest uppercase">Retail</span>
+                            </div>
+                            <p class="text-gray-400 text-xs leading-relaxed mb-4">A contemporary identity for a Kuwaiti luxury incense house: champagne gold on deep black, Satoshi and Cairo typography, material and photography direction, packaging design, and a twelve column content grid.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Brand Identity</span>
+                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Packaging</span>
+                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Art Direction</span>
+                            </div>
+                        </figcaption>
+                    </figure>
+                </div>
             </div>
 
             <!-- Our Approach -->
@@ -1361,7 +1446,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 12 10 18C10 22 12 26 16 26C20 26 22 22 22 18C22 12 16 6 16 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 14L16 10L20 14" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">BOBYAN</div><div class="text-[7px] tracking-widest text-navy font-semibold">FARM</div></div>
+                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">BOUBAYAN</div><div class="text-[7px] tracking-widest text-navy font-semibold">FARM</div></div>
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 28H26L16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 20H20" stroke="currentColor" stroke-width="1.5"/></svg>
