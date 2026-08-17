@@ -196,41 +196,23 @@
             transform: translateY(-4px);
         }
 
-        /* Brand board cards. The boards are light posters of differing aspect
-           ratios, so each sits contained on a white sheet of fixed height —
-           both cards stay level and neither board gets cropped. */
-        .board-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            margin: 0;
-        }
-
-        .board-card:hover {
-            border-color: rgba(30, 94, 255, 0.5);
-            transform: translateY(-4px);
-        }
-
-        .board-frame {
+        /* Case study grid. Flex rather than a 3-column grid so that a final row
+           holding fewer than three cards centres instead of leaving a hole. */
+        .case-grid {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             justify-content: center;
-            height: 300px;
-            padding: 16px;
-            background: #f1f4fa;
+            gap: 24px;
         }
 
-        .board-frame img {
+        .case-grid > .case-card {
+            flex: 1 1 300px;
             max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
         }
 
         @media (min-width: 1024px) {
-            .board-frame {
-                height: 420px;
+            .case-grid > .case-card {
+                flex: 0 1 calc((100% - 48px) / 3);
             }
         }
 
@@ -750,7 +732,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 28H26L16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 20H20" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">AUTOLINK</div><div class="text-[8px] tracking-widest text-navy font-semibold">CAR BROKERAGE</div></div>
+                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">AUTO LINK</div><div class="text-[8px] tracking-widest text-navy font-semibold">CAR BROKERAGE</div></div>
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 14 10 20C10 24 12 26 16 26C20 26 22 24 22 20C22 14 16 6 16 6Z" fill="currentColor"/><circle cx="16" cy="18" r="3" fill="white"/></svg>
@@ -994,42 +976,40 @@
             </div>
 
             <!-- Case Study Cards -->
-            <div class="grid lg:grid-cols-3 gap-6 mb-12">
+            <div class="case-grid mb-12">
                 <!-- Case 1 -->
                 <div class="case-card fade-in">
                     <div class="relative h-48 overflow-hidden">
-                        <!-- No client photography supplied for this case study, so the
-                             header is deliberate artwork rather than a stand-in image:
-                             layered botanical forms in FASLA's green, echoing the growth
-                             motif in their mark. -->
-                        <svg class="w-full h-full" viewBox="0 0 400 192" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Layered botanical forms in FASLA Wellness green">
+                        <!-- Interim artwork until FASLA photography is available.
+                             Flowing gradient fields drawn in the brand's own palette,
+                             taken from their brand kit: healing teal #009688, warm plum
+                             #7B3E72, deep violet #3D2A67, serene mint #DFF2EC. -->
+                        <svg class="w-full h-full" viewBox="0 0 400 192" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Flowing gradient fields in FASLA Wellness teal, plum and violet">
                             <defs>
                                 <linearGradient id="faslaGround" x1="0" y1="0" x2="1" y2="1">
-                                    <stop offset="0%" stop-color="#1B7A46"/>
-                                    <stop offset="55%" stop-color="#0F4A34"/>
-                                    <stop offset="100%" stop-color="#06142D"/>
+                                    <stop offset="0%" stop-color="#009688"/>
+                                    <stop offset="48%" stop-color="#3D2A67"/>
+                                    <stop offset="100%" stop-color="#0D1030"/>
                                 </linearGradient>
-                                <radialGradient id="faslaGlow" cx="0.72" cy="0.18" r="0.6">
-                                    <stop offset="0%" stop-color="#A7E8C0" stop-opacity="0.35"/>
-                                    <stop offset="100%" stop-color="#A7E8C0" stop-opacity="0"/>
+                                <radialGradient id="faslaGlow" cx="0.74" cy="0.16" r="0.62">
+                                    <stop offset="0%" stop-color="#DFF2EC" stop-opacity="0.32"/>
+                                    <stop offset="100%" stop-color="#DFF2EC" stop-opacity="0"/>
                                 </radialGradient>
-                                <path id="faslaLeaf" d="M0 0C22-34 68-34 92 0C68 34 22 34 0 0Z"/>
+                                <linearGradient id="faslaWave" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#7B3E72" stop-opacity="0.55"/>
+                                    <stop offset="100%" stop-color="#009688" stop-opacity="0.30"/>
+                                </linearGradient>
                             </defs>
 
                             <rect width="400" height="192" fill="url(#faslaGround)"/>
                             <rect width="400" height="192" fill="url(#faslaGlow)"/>
 
-                            <g fill="#EAF7F0">
-                                <use href="#faslaLeaf" transform="translate(296 34) rotate(-28) scale(1.15)" opacity="0.16"/>
-                                <use href="#faslaLeaf" transform="translate(268 74) rotate(14) scale(0.92)" opacity="0.11"/>
-                                <use href="#faslaLeaf" transform="translate(330 108) rotate(-52) scale(0.8)" opacity="0.08"/>
-                                <use href="#faslaLeaf" transform="translate(196 22) rotate(-8) scale(0.66)" opacity="0.07"/>
-                            </g>
+                            <path d="M0 118C78 88 138 148 220 118S344 78 400 108V192H0Z" fill="url(#faslaWave)"/>
+                            <path d="M0 142C92 114 152 170 242 140S352 104 400 134V192H0Z" fill="#DFF2EC" opacity="0.10"/>
 
-                            <g fill="none" stroke="#EAF7F0" stroke-linecap="round">
-                                <path d="M300 36C316 46 330 62 338 82" stroke-width="1.4" opacity="0.24"/>
-                                <path d="M272 76C288 84 300 96 308 110" stroke-width="1.2" opacity="0.18"/>
-                                <path d="M28 168C64 150 96 120 118 84" stroke-width="1.2" opacity="0.12"/>
+                            <g fill="none" stroke="#DFF2EC" stroke-linecap="round">
+                                <path d="M0 96C90 64 150 122 240 92S352 56 400 88" stroke-width="1.6" opacity="0.28"/>
+                                <path d="M0 76C86 46 146 102 236 74S346 40 400 70" stroke-width="1.1" opacity="0.16"/>
                             </g>
                         </svg>
                         <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent"></div>
@@ -1129,36 +1109,37 @@
                 <!-- Case 3 -->
                 <div class="case-card fade-in" style="transition-delay: 0.2s;">
                     <div class="relative h-48 overflow-hidden">
-                        <!-- No client photography supplied for this case study either;
-                             deliberate artwork instead — a road converging toward a
-                             horizon, for a brokerage whose business is movement. -->
-                        <svg class="w-full h-full" viewBox="0 0 400 192" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Abstract road converging toward a lit horizon">
+                        <!-- Interim artwork until Auto Link photography is available.
+                             A road converging toward a lit horizon, drawn in the brand's
+                             own palette from their board: #E30613 on #0D0D0D. -->
+                        <svg class="w-full h-full" viewBox="0 0 400 192" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Abstract road converging toward a horizon in Auto Link red and black">
                             <defs>
-                                <linearGradient id="autoGround" x1="0" y1="0" x2="0.35" y2="1">
-                                    <stop offset="0%" stop-color="#2C6BFF"/>
-                                    <stop offset="45%" stop-color="#14357F"/>
-                                    <stop offset="100%" stop-color="#06142D"/>
+                                <linearGradient id="autoGround" x1="0" y1="0" x2="0.3" y2="1">
+                                    <stop offset="0%" stop-color="#2A2A2A"/>
+                                    <stop offset="50%" stop-color="#1A1A1A"/>
+                                    <stop offset="100%" stop-color="#0D0D0D"/>
                                 </linearGradient>
-                                <radialGradient id="autoHorizon" cx="0.5" cy="0.42" r="0.42">
-                                    <stop offset="0%" stop-color="#CFE0FF" stop-opacity="0.45"/>
-                                    <stop offset="100%" stop-color="#CFE0FF" stop-opacity="0"/>
+                                <radialGradient id="autoHorizon" cx="0.5" cy="0.42" r="0.45">
+                                    <stop offset="0%" stop-color="#E30613" stop-opacity="0.55"/>
+                                    <stop offset="100%" stop-color="#E30613" stop-opacity="0"/>
                                 </radialGradient>
                             </defs>
 
                             <rect width="400" height="192" fill="url(#autoGround)"/>
                             <rect width="400" height="192" fill="url(#autoHorizon)"/>
 
-                            <g stroke="#EAF1FF" fill="none" stroke-linecap="round">
-                                <path d="M200 80L38 192" stroke-width="1.6" opacity="0.30"/>
-                                <path d="M200 80L124 192" stroke-width="1.2" opacity="0.20"/>
-                                <path d="M200 80L276 192" stroke-width="1.2" opacity="0.20"/>
-                                <path d="M200 80L362 192" stroke-width="1.6" opacity="0.30"/>
-                                <path d="M200 80V192" stroke-width="2.2" stroke-dasharray="7 13" opacity="0.38"/>
+                            <g stroke="#FFFFFF" fill="none" stroke-linecap="round">
+                                <path d="M200 80L38 192" stroke-width="1.6" opacity="0.22"/>
+                                <path d="M200 80L124 192" stroke-width="1.2" opacity="0.14"/>
+                                <path d="M200 80L276 192" stroke-width="1.2" opacity="0.14"/>
+                                <path d="M200 80L362 192" stroke-width="1.6" opacity="0.22"/>
                             </g>
 
-                            <g stroke="#EAF1FF" fill="none" opacity="0.14" stroke-linecap="round">
-                                <path d="M96 60H188" stroke-width="1.4"/>
-                                <path d="M232 44H322" stroke-width="1.2"/>
+                            <path d="M200 80V192" stroke="#E30613" stroke-width="2.6" stroke-dasharray="7 13" stroke-linecap="round" fill="none" opacity="0.9"/>
+
+                            <g stroke="#E30613" fill="none" stroke-linecap="round" opacity="0.5">
+                                <path d="M96 58H188" stroke-width="1.6"/>
+                                <path d="M232 42H322" stroke-width="1.3"/>
                                 <path d="M258 96H344" stroke-width="1"/>
                             </g>
                         </svg>
@@ -1167,7 +1148,7 @@
                             <div class="number-badge">03</div>
                             <div class="flex items-center gap-1">
                                 <svg class="w-5 h-5 text-white" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 28H26L16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 20H20" stroke="currentColor" stroke-width="1.5"/></svg>
-                                <div><div class="font-heading font-bold text-xs text-white tracking-wider">AUTOLINK</div><div class="text-[6px] tracking-widest text-gray-300">CAR BROKERAGE</div></div>
+                                <div><div class="font-heading font-bold text-xs text-white tracking-wider">AUTO LINK</div><div class="text-[6px] tracking-widest text-gray-300">CAR BROKERAGE</div></div>
                             </div>
                         </div>
                         <div class="absolute bottom-4 left-4 right-4">
@@ -1206,6 +1187,105 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Case 4 -->
+                <div class="case-card fade-in">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="assets/case-auto-vision.webp" alt="Silver SUV on a wet highway with a city skyline behind" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                        <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent"></div>
+                        <div class="absolute top-4 left-4 flex items-center gap-2">
+                            <div class="number-badge">04</div>
+                            <div class="flex items-center gap-1">
+                                <svg class="w-5 h-5 text-white" viewBox="0 0 32 32" fill="none"><path d="M4 16C4 16 9 11 16 11C23 11 28 16 28 16C28 16 23 21 16 21C9 21 4 16 4 16Z" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="3" fill="currentColor"/></svg>
+                                <div><div class="font-heading font-bold text-xs text-white tracking-wider">AUTO VISION</div><div class="text-[6px] tracking-widest text-gray-300">AUTOMOTIVE</div></div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <p class="text-white font-heading font-bold text-sm leading-snug">One System.<br>Every Touchpoint.<br>On Brand.</p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Brand Identity</span>
+                            <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Design System</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <div class="text-[10px] text-electric font-bold tracking-wider mb-2">THE CHALLENGE</div>
+                                <p class="text-gray-400 text-xs leading-relaxed">Present a luxury automotive showcase consistently across Arabic and English, from showroom to social.</p>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-electric font-bold tracking-wider mb-2">THE SYSTEM</div>
+                                <div class="space-y-2">
+                                    <div><span class="text-white font-heading font-bold text-lg">6</span><span class="text-gray-500 text-[10px] block">Core Palette Colours</span></div>
+                                    <div><span class="text-white font-heading font-bold text-lg">4</span><span class="text-gray-500 text-[10px] block">Arabic Type Weights</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="text-[10px] text-electric font-bold tracking-wider mb-2">OUR SOLUTION</div>
+                            <p class="text-gray-400 text-xs leading-relaxed">We built a full visual system — an IBM Plex Sans Arabic type scale, a line icon set and UI components — with paired do's and don'ts so every layout holds in both scripts.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div><span class="text-white font-heading font-bold text-lg">7</span><span class="text-gray-500 text-[10px] block">Line Icons</span></div>
+                            <div><span class="text-white font-heading font-bold text-lg">5</span><span class="text-gray-500 text-[10px] block">Content Layouts</span></div>
+                        </div>
+                        <a href="assets/auto-vision-design-system.webp" target="_blank" rel="noopener" class="btn-outline-dark w-full justify-center text-sm">
+                            View Full Brand Board
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Case 5 -->
+                <div class="case-card fade-in">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="assets/case-bukhoor-assam.webp" alt="Bukhoor Assam Al Kuwait packaging: a black gift box and jar with the gold brand mark" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                        <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent"></div>
+                        <div class="absolute top-4 left-4 flex items-center gap-2">
+                            <div class="number-badge">05</div>
+                            <div class="flex items-center gap-1">
+                                <svg class="w-5 h-5 text-white" viewBox="0 0 32 32" fill="none"><path d="M16 5C16 5 13 9 13 13C13 16 16 17 16 20C16 23 13 25 13 25" stroke="currentColor" stroke-width="1.5"/><path d="M9 27H23" stroke="currentColor" stroke-width="1.5"/><path d="M11 24H21" stroke="currentColor" stroke-width="1.5"/></svg>
+                                <div><div class="font-heading font-bold text-xs text-white tracking-wider">BUKHOOR ASSAM</div><div class="text-[6px] tracking-widest text-gray-300">AL KUWAIT</div></div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <p class="text-white font-heading font-bold text-sm leading-snug">Modern Kuwaiti<br>Luxury.<br>Defined.</p>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Brand Identity</span>
+                            <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Packaging</span>
+                            <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Art Direction</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <div class="text-[10px] text-electric font-bold tracking-wider mb-2">THE CHALLENGE</div>
+                                <p class="text-gray-400 text-xs leading-relaxed">Launch a contemporary luxury incense house rooted in Kuwait's modern elegance and hospitality.</p>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-electric font-bold tracking-wider mb-2">THE SYSTEM</div>
+                                <div class="space-y-2">
+                                    <div><span class="text-white font-heading font-bold text-lg">8</span><span class="text-gray-500 text-[10px] block">Brand Colours</span></div>
+                                    <div><span class="text-white font-heading font-bold text-lg">12</span><span class="text-gray-500 text-[10px] block">Column Content Grid</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="text-[10px] text-electric font-bold tracking-wider mb-2">OUR SOLUTION</div>
+                            <p class="text-gray-400 text-xs leading-relaxed">We set champagne gold against deep black, paired Satoshi with Cairo, and directed materials, photography and packaging so the brand reads as luxury on every surface.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div><span class="text-white font-heading font-bold text-lg">9</span><span class="text-gray-500 text-[10px] block">Material Swatches</span></div>
+                            <div><span class="text-white font-heading font-bold text-lg">2</span><span class="text-gray-500 text-[10px] block">Type Systems, AR &amp; EN</span></div>
+                        </div>
+                        <a href="assets/bukhoor-assam-brand-board.webp" target="_blank" rel="noopener" class="btn-outline-dark w-full justify-center text-sm">
+                            View Full Brand Board
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <div class="text-center mb-16 fade-in">
@@ -1213,55 +1293,6 @@
                     View All Projects
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
-            </div>
-
-            <!-- Brand & Identity Systems -->
-            <div class="mb-16">
-                <div class="mb-8 fade-in">
-                    <span class="text-electric text-xs font-bold tracking-[0.3em] uppercase">Brand &amp; Identity</span>
-                    <h3 class="font-heading text-3xl lg:text-4xl font-extrabold text-white mt-4 mb-3">
-                        Design Systems Built <span class="text-electric">From Scratch</span>
-                    </h3>
-                    <p class="text-gray-400 max-w-2xl">Complete visual identities &mdash; palette, typography, iconography, materials and applications &mdash; documented so every touchpoint stays consistent.</p>
-                </div>
-
-                <div class="grid lg:grid-cols-2 gap-6">
-                    <figure class="board-card fade-in">
-                        <a href="assets/auto-vision-design-system.webp" target="_blank" rel="noopener" class="board-frame">
-                            <img src="assets/auto-vision-design-system.webp" alt="Auto Vision design system board showing colour palette, typography, icon system, UI components and content style examples" loading="lazy" decoding="async">
-                        </a>
-                        <figcaption class="p-5">
-                            <div class="flex items-baseline justify-between gap-3 mb-3">
-                                <h4 class="font-heading font-bold text-white text-lg">Auto Vision</h4>
-                                <span class="text-gray-500 text-[10px] tracking-widest uppercase">Automotive</span>
-                            </div>
-                            <p class="text-gray-400 text-xs leading-relaxed mb-4">A full visual system for a luxury automotive showcase: navy and blue palette, an IBM Plex Sans Arabic type scale, a line icon set, UI components, and paired do's and don'ts that keep campaign work on-brand in both Arabic and English.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Design System</span>
-                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Brand Identity</span>
-                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Arabic Typography</span>
-                            </div>
-                        </figcaption>
-                    </figure>
-
-                    <figure class="board-card fade-in" style="transition-delay: 0.1s;">
-                        <a href="assets/bukhoor-assam-brand-board.webp" target="_blank" rel="noopener" class="board-frame">
-                            <img src="assets/bukhoor-assam-brand-board.webp" alt="Bukhoor Assam Al Kuwait brand board showing visual DNA, colour palette, typography, materials, packaging and brand applications" loading="lazy" decoding="async">
-                        </a>
-                        <figcaption class="p-5">
-                            <div class="flex items-baseline justify-between gap-3 mb-3">
-                                <h4 class="font-heading font-bold text-white text-lg">Bukhoor Assam Al Kuwait</h4>
-                                <span class="text-gray-500 text-[10px] tracking-widest uppercase">Retail</span>
-                            </div>
-                            <p class="text-gray-400 text-xs leading-relaxed mb-4">A contemporary identity for a Kuwaiti luxury incense house: champagne gold on deep black, Satoshi and Cairo typography, material and photography direction, packaging design, and a twelve column content grid.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Brand Identity</span>
-                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Packaging</span>
-                                <span class="text-xs bg-electric/20 text-electric px-2 py-1 rounded">Art Direction</span>
-                            </div>
-                        </figcaption>
-                    </figure>
-                </div>
             </div>
 
             <!-- Our Approach -->
@@ -1529,7 +1560,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 28H26L16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 20H20" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">AUTOLINK</div><div class="text-[7px] tracking-widest text-navy font-semibold">CAR BROKERAGE</div></div>
+                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">AUTO LINK</div><div class="text-[7px] tracking-widest text-navy font-semibold">CAR BROKERAGE</div></div>
                 </div>
                 <div class="flex items-center gap-2">
                     <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 14 10 20C10 24 12 26 16 26C20 26 22 24 22 20C22 14 16 6 16 6Z" fill="currentColor"/><circle cx="16" cy="18" r="3" fill="white"/></svg>
