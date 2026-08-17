@@ -198,6 +198,39 @@
 
         /* Case study grid. Flex rather than a 3-column grid so that a final row
            holding fewer than three cards centres instead of leaving a hole. */
+        /* Client logo strips. The supplied lockups vary from 0.64:1 to 2.98:1,
+           so each is capped on both axes and centred — a height cap alone would
+           let the wide lockups run three times the width of the stacked ones. */
+        .client-logos {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+        }
+
+        @media (min-width: 1024px) {
+            .client-logos {
+                gap: 48px;
+            }
+        }
+
+        .client-logo {
+            width: auto;
+            height: auto;
+            max-height: 44px;
+            max-width: 130px;
+            object-fit: contain;
+        }
+
+        /* Stacked lockups put the wordmark under the mark, so a cap sized for a
+           horizontal lockup squeezes their text illegible. They get more height
+           and less width. */
+        .client-logo.is-stacked {
+            max-height: 66px;
+            max-width: 112px;
+        }
+
         .case-grid {
             display: flex;
             flex-wrap: wrap;
@@ -721,34 +754,18 @@
     <section class="py-16 bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <p class="text-center text-xs font-bold tracking-[0.3em] text-gray-400 uppercase mb-10">Trusted by Growing Brands</p>
-            <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-12 opacity-60">
-                <div class="flex items-center gap-2">
-                    <svg class="w-8 h-8 text-green-700" viewBox="0 0 32 32" fill="none"><path d="M16 4C16 4 8 10 8 18C8 22 11 26 16 28C21 26 24 22 24 18C24 10 16 4 16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M16 12V22M12 16C14 18 18 18 20 16" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">FASLA</div><div class="text-[8px] tracking-widest text-green-700 font-semibold">WELLNESS</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 12 10 18C10 22 12 26 16 26C20 26 22 22 22 18C22 12 16 6 16 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 14L16 10L20 14" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">BOUBAYAN</div><div class="text-[8px] tracking-widest text-navy font-semibold">FARM</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 28H26L16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 20H20" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">AUTO LINK</div><div class="text-[8px] tracking-widest text-navy font-semibold">CAR BROKERAGE</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 14 10 20C10 24 12 26 16 26C20 26 22 24 22 20C22 14 16 6 16 6Z" fill="currentColor"/><circle cx="16" cy="18" r="3" fill="white"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">OILZONE</div><div class="text-[8px] tracking-widest text-navy font-semibold">PERFORMANCE</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="border-2 border-navy rounded px-2 py-1"><div class="font-heading font-bold text-xs text-navy">HANKER</div><div class="text-[6px] text-navy text-center">BURGER</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="font-heading italic text-lg text-navy">Nail</div>
-                    <div class="text-[8px] tracking-widest text-navy font-semibold">STUDIO</div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L20 12L28 14L22 20L24 28L16 24L8 28L10 20L4 14L12 12L16 4Z" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">MAZAJ</div><div class="text-[8px] tracking-widest text-navy font-semibold">ORIENTAL</div></div>
-                </div>
+            <div class="client-logos">
+                    <img src="assets/logos/fasla.webp" alt="FASLA Wellness" class="client-logo" loading="lazy" decoding="async">
+                    <img src="assets/logos/boubayan.webp" alt="Boubayan Farm" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/auto-link.webp" alt="Auto Link" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/oilzone.webp" alt="Oilzone Performance" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/hanker.webp" alt="Hanker Burger" class="client-logo" loading="lazy" decoding="async">
+                    <img src="assets/logos/nail-studio.webp" alt="Nail Studio" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/siwa-bus.webp" alt="Siwa Bus" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L20 12L28 14L22 20L24 28L16 24L8 28L10 20L4 14L12 12L16 4Z" stroke="currentColor" stroke-width="1.5"/></svg>
+                        <div><div class="font-heading font-bold text-sm text-navy tracking-wider">MAZAJ</div><div class="text-[8px] tracking-widest text-navy font-semibold">ORIENTAL</div></div>
+                    </div>
             </div>
         </div>
     </section>
@@ -1549,34 +1566,18 @@
     <section class="py-12 bg-white border-t border-gray-100">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <p class="text-center text-xs font-bold tracking-[0.3em] text-gray-400 uppercase mb-8">Trusted by Ambitious Brands</p>
-            <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-12 opacity-50">
-                <div class="flex items-center gap-2">
-                    <svg class="w-7 h-7 text-green-700" viewBox="0 0 32 32" fill="none"><path d="M16 4C16 4 8 10 8 18C8 22 11 26 16 28C21 26 24 22 24 18C24 10 16 4 16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M16 12V22M12 16C14 18 18 18 20 16" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">FASLA</div><div class="text-[7px] tracking-widest text-green-700 font-semibold">WELLNESS</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 12 10 18C10 22 12 26 16 26C20 26 22 22 22 18C22 12 16 6 16 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 14L16 10L20 14" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">BOUBAYAN</div><div class="text-[7px] tracking-widest text-navy font-semibold">FARM</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 28H26L16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 20H20" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">AUTO LINK</div><div class="text-[7px] tracking-widest text-navy font-semibold">CAR BROKERAGE</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 6C16 6 10 14 10 20C10 24 12 26 16 26C20 26 22 24 22 20C22 14 16 6 16 6Z" fill="currentColor"/><circle cx="16" cy="18" r="3" fill="white"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">OILZONE</div><div class="text-[7px] tracking-widest text-navy font-semibold">PERFORMANCE</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="border-2 border-navy rounded px-2 py-1"><div class="font-heading font-bold text-xs text-navy">HANKER</div><div class="text-[6px] text-navy text-center">BURGER</div></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="font-heading italic text-base text-navy">Nail</div>
-                    <div class="text-[7px] tracking-widest text-navy font-semibold">STUDIO</div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <svg class="w-7 h-7 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L20 12L28 14L22 20L24 28L16 24L8 28L10 20L4 14L12 12L16 4Z" stroke="currentColor" stroke-width="1.5"/></svg>
-                    <div><div class="font-heading font-bold text-sm text-navy tracking-wider">MAZAJ</div><div class="text-[7px] tracking-widest text-navy font-semibold">ORIENTAL</div></div>
-                </div>
+            <div class="client-logos">
+                    <img src="assets/logos/fasla.webp" alt="FASLA Wellness" class="client-logo" loading="lazy" decoding="async">
+                    <img src="assets/logos/boubayan.webp" alt="Boubayan Farm" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/auto-link.webp" alt="Auto Link" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/oilzone.webp" alt="Oilzone Performance" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/hanker.webp" alt="Hanker Burger" class="client-logo" loading="lazy" decoding="async">
+                    <img src="assets/logos/nail-studio.webp" alt="Nail Studio" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <img src="assets/logos/siwa-bus.webp" alt="Siwa Bus" class="client-logo is-stacked" loading="lazy" decoding="async">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-8 h-8 text-navy" viewBox="0 0 32 32" fill="none"><path d="M16 4L20 12L28 14L22 20L24 28L16 24L8 28L10 20L4 14L12 12L16 4Z" stroke="currentColor" stroke-width="1.5"/></svg>
+                        <div><div class="font-heading font-bold text-sm text-navy tracking-wider">MAZAJ</div><div class="text-[8px] tracking-widest text-navy font-semibold">ORIENTAL</div></div>
+                    </div>
             </div>
         </div>
     </section>
