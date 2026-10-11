@@ -23,7 +23,7 @@ language under each one.
 | Input | Recover with | Then reconstruct |
 |---|---|---|
 | Image file (png, jpg, webp…) | `scripts/inspect_media.py <file>` | View the image yourself (Read tool) |
-| Video / GIF | `scripts/inspect_media.py <file>`: ffprobe tags, scene cuts, sampled frames | Read every sampled frame, build a shot list |
+| Video / GIF | `scripts/inspect_media.py <file>`: ffprobe tags, scene cuts, plus a full-timeline **watch** pass | Watch it as described in "Watching a video" below |
 | Audio | `scripts/inspect_media.py <file>` (ffprobe tags) | Describe genre, tempo, instruments, voice, structure |
 | Website URL | REA: `list_browser_targets` → `inspect_web_page`, `analyze_web_bundle`, `capture_web_screenshot` (see the `reverse-engineer-anything` skill) | Build prompt for the whole site |
 | App (APK, exe, Electron/ASAR, .NET) | REA routing from the `reverse-engineer-anything` skill | Build prompt for the app/feature |
@@ -40,6 +40,29 @@ uploads the file, or adds the domain under Allowed domains in the
 environment's network settings. If the site's source is in the repo, serve its
 build locally (`python3 -m http.server`, headless Chromium with
 `--remote-debugging-port`) and point REA at that. Never invent what an unreachable page contains.
+
+## Watching a video
+
+Claude takes in images and text, not video. To watch a video, read the whole
+timeline as images and pair them with the motion and audio data:
+
+1. Read **every** image in `watch.contact_sheets`, in order. Each sheet is a
+   4×4 grid of frames taken every `watch.frame_interval_sec` seconds (0.5–2s),
+   and each frame shows its timestamp, so the sheets cover the video from
+   start to end.
+2. Use `scene_cuts_sec` for the shot boundaries. If a moment needs a closer
+   look, Read the full-size `watch_XXXX.jpg` or `scene_XXX.jpg` frames.
+3. Take camera moves from `watch.camera_motion`, a list of segments, each
+   labeled `static`, `pan_left/right`, `tilt_up/down`, `zoom_in/out`,
+   `subject_motion` or `cut_or_fast_change`. Check each label against the
+   frames, since it is a heuristic.
+4. Take sound from `watch.audio`: `silences_sec` gives the gaps, so the time
+   outside them has sound; `integrated_loudness_lufs` gives the loudness. Use
+   `transcript` when it is present. When it is null, no local speech model
+   exists, so say you can't hear the words and ask the user for the voice-over
+   or lyrics text if it matters. Never invent dialogue.
+5. Then write the shot list and prompts. For long videos (>3 min) the frames
+   are sparser, so mention that fast moments between frames may be missed.
 
 ## Step 2: read the recovery output
 
