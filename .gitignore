@@ -22,3 +22,9 @@ dist-ssr
 *.sln
 *.sw?
 __pycache__/
+
+# motion-reel: regenerable intermediates (audio/score.py, sfx.mjs, mix.mjs, render.mjs rebuild them)
+step-momentum/audio/*.wav
+out/*/video_*.mp4
+out/*/contact/
+out/*/hits.json
