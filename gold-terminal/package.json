@@ -1,0 +1,19 @@
+{
+  "name": "gold-intelligence-terminal",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": ["packages/core", "apps/server", "apps/web"],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test -w @gold/core && npm run test -w @gold/server",
+    "test:integration": "npm run test:integration -w @gold/server",
+    "build": "npm run build -w @gold/server && npm run build -w @gold/web",
+    "dev:server": "npm run dev -w @gold/server",
+    "dev:web": "npm run dev -w @gold/web",
+    "db:migrate": "npm run migrate -w @gold/server",
+    "connectivity": "npm run connectivity -w @gold/server",
+    "fixtures:record": "npm run fixtures:record -w @gold/server"
+  },
+  "engines": { "node": ">=20.11" }
+}

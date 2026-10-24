@@ -1,0 +1,20 @@
+{
+  "kind": "synthetic",
+  "notLiveData": true,
+  "description": "SYNTHETIC seeded random walk in Twelve Data response format. NOT market data. For tests and offline UI development only.",
+  "symbol": "XAU/USD",
+  "format": "twelvedata",
+  "recordedAt": null,
+  "replayStart": "2024-03-13T12:00:00.000Z",
+  "replayEnd": "2024-03-13T15:00:00.000Z",
+  "files": {
+    "1min": "time_series_1min.json",
+    "5min": "time_series_5min.json",
+    "15min": "time_series_15min.json",
+    "1h": "time_series_1h.json",
+    "4h": "time_series_4h.json",
+    "1day": "time_series_1day.json"
+  },
+  "wsFrames": "ws_frames.jsonl",
+  "quote": "quote.json"
+}
