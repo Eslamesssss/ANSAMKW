@@ -85,7 +85,7 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
         analyst: await analyst.budget(),
       };
     }
-    return { origin: engine.origin, connection: engine.live.connection, startupProblem: problem(), price: engine.priceView(), status: engine.status(), analyst: await analyst.budget() };
+    return { origin: engine.origin, connection: engine.startupProblem ? "error" : engine.live.connection, startupProblem: problem(), price: engine.priceView(), status: engine.status(), analyst: await analyst.budget() };
   });
 
   app.get("/api/candles", async (req, reply) => {

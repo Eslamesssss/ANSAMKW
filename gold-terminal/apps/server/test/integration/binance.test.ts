@@ -198,9 +198,24 @@ describe("Binance USDⓈ-M XAUUSDT pipeline (mock exchange)", () => {
     await engine.start({ timers: false });
     expect(engine.startupProblem).toMatch(/XAUUSDT is not listed/);
     expect(engine.startupProblem).toMatch(/no other instrument is substituted/);
+    expect(engine.startupProblem).toMatch(/Retrying every 10 minutes/);
     expect(rest.count("/fapi/v1/klines")).toBe(0);
     expect(ws.connections).toHaveLength(0);
     expect(engine.session().open).toBe(false);
+  });
+
+  it("keeps retrying when Binance is unreachable at startup and recovers on its own", async () => {
+    const { engine, rest, ws } = await setup();
+    rest.failNext.push({ status: 503, body: { code: -1001, msg: "Internal error" } });
+    await engine.start({ timers: false });
+    expect(engine.startupProblem).toMatch(/Could not read the XAUUSDT contract.*Retrying every 30 seconds/);
+    expect(engine.status().connection).toBe("error");
+    expect(ws.connections).toHaveLength(0);
+    // The retry (normally a 30s timer) succeeds once Binance answers.
+    await engine.start({ timers: false });
+    expect(engine.startupProblem).toBeNull();
+    expect(engine.market.contract?.symbol).toBe("XAUUSDT");
+    await waitFor(() => engine.live.connection === "connected");
   });
 
   it("follows exchange status changes from exchangeInfo", async () => {

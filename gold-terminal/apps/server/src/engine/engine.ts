@@ -89,6 +89,7 @@ export class MarketEngine extends EventEmitter {
   readonly market: MarketState;
   /** Set when the feed cannot run (e.g. contract validation failed). */
   startupProblem: string | null = null;
+  private retryTimer: NodeJS.Timeout | null = null;
   started = false;
 
   constructor(
@@ -131,7 +132,16 @@ export class MarketEngine extends EventEmitter {
   async start(opts: { timers?: boolean } = {}): Promise<void> {
     this.rules = await this.repo.listRules();
     await this.repo.recordFeedEvent(this.adapter.id, "engine_start", { origin: this.origin, symbol: this.symbol });
-    if (!(await this.verifyContract(true))) return;
+    const verified = await this.verifyContract(true);
+    if (!verified) {
+      // Keep trying: Binance may be briefly unreachable at startup. A contract that fails validation is re-checked rarely.
+      const delay = verified === null ? 10 * MINUTE : 30_000;
+      this.startupProblem = `${this.startupProblem} Retrying every ${delay >= MINUTE ? `${delay / MINUTE} minutes` : `${delay / 1000} seconds`}.`;
+      this.emit("status", this.status());
+      if (opts.timers !== false) this.retryTimer = setTimeout(() => void this.start(opts), delay);
+      return;
+    }
+    this.startupProblem = null;
     for (const tf of TIMEFRAMES) {
       const stored = await this.repo.loadCandles(this.origin, this.symbol, tf, MEMORY_BARS);
       if (stored.length) this.tf.get(tf)!.closed = stored;
@@ -178,44 +188,45 @@ export class MarketEngine extends EventEmitter {
    * Read the contract from the exchange and validate it. A validation failure
    * stops the feed: the app never substitutes another instrument.
    */
-  private async verifyContract(initial: boolean): Promise<boolean> {
-    for (let attempt = 0; attempt < (initial ? 5 : 1); attempt++) {
-      try {
-        const spec = await this.adapter.loadContract();
-        const prev = this.market.contract;
-        this.market.contract = spec;
-        this.market.contractCheckedAt = this.now();
-        this.dataQuality.delete("contract");
-        if (prev && prev.status !== spec.status) {
-          this.log.warn({ from: prev.status, to: spec.status }, "contract status changed");
-          void this.repo.recordFeedEvent(this.adapter.id, "contract_status", { from: prev.status, to: spec.status }).catch(() => {});
-        }
-        if (spec.status !== "TRADING") this.dataQuality.set("contract", `${spec.symbol} exchange status is ${spec.status}`);
-        this.due.contract = this.now() + this.config.CONTRACT_REFRESH_SEC * 1000;
-        return true;
-      } catch (err) {
-        if (err instanceof ContractValidationError) {
-          this.startupProblem = `${err.message}. The feed is stopped; no other instrument is substituted.`;
-          this.market.contract = null;
-          this.dataQuality.set("contract", this.startupProblem);
-          this.log.error({ problems: err.problems }, "contract validation failed");
-          this.emit("status", this.status());
-          return false;
-        }
-        const e = err as ProviderError;
-        this.dataQuality.set("contract", `contract check failed: ${e.message}`);
-        this.log.warn({ err: e.message }, "exchangeInfo fetch failed");
-        if (!initial) {
-          this.due.contract = this.now() + 60_000;
-          return this.market.contract !== null;
-        }
-        if (e.code === "restricted" || e.code === "banned") break;
-        await sleep(Math.min(e.retryAfterMs ?? 2000, 30_000));
+  /**
+   * Returns true when the contract was read and validated, false when it
+   * could not be read, and null when it was read but failed validation.
+   */
+  private async verifyContract(initial: boolean): Promise<boolean | null> {
+    try {
+      const spec = await this.adapter.loadContract();
+      const prev = this.market.contract;
+      this.market.contract = spec;
+      this.market.contractCheckedAt = this.now();
+      this.dataQuality.delete("contract");
+      if (prev && prev.status !== spec.status) {
+        this.log.warn({ from: prev.status, to: spec.status }, "contract status changed");
+        void this.repo.recordFeedEvent(this.adapter.id, "contract_status", { from: prev.status, to: spec.status }).catch(() => {});
       }
+      if (spec.status !== "TRADING") this.dataQuality.set("contract", `${spec.symbol} exchange status is ${spec.status}`);
+      this.due.contract = this.now() + this.config.CONTRACT_REFRESH_SEC * 1000;
+      return true;
+    } catch (err) {
+      if (err instanceof ContractValidationError) {
+        this.startupProblem = `${err.message}. The feed is stopped; no other instrument is substituted.`;
+        this.market.contract = null;
+        this.dataQuality.set("contract", this.startupProblem);
+        this.log.error({ problems: err.problems }, "contract validation failed");
+        this.emit("status", this.status());
+        return null;
+      }
+      const e = err as ProviderError;
+      this.dataQuality.set("contract", `contract check failed: ${e.message}`);
+      this.log.warn({ err: e.message }, "exchangeInfo fetch failed");
+      if (!initial) {
+        // Keep the last good spec; try again in a minute.
+        this.due.contract = this.now() + 60_000;
+        return this.market.contract !== null;
+      }
+      this.startupProblem = `Could not read the XAUUSDT contract from Binance: ${e.message}.`;
+      this.emit("status", this.status());
+      return false;
     }
-    this.startupProblem = `Could not read the XAUUSDT contract from Binance: ${this.dataQuality.get("contract") ?? "unknown error"}`;
-    this.emit("status", this.status());
-    return false;
   }
 
   /** REST synchronisation of book, mark/index/funding, 24h ticker, open interest and slower reference data. */
@@ -262,6 +273,8 @@ export class MarketEngine extends EventEmitter {
   }
 
   stop() {
+    if (this.retryTimer) clearTimeout(this.retryTimer);
+    this.retryTimer = null;
     for (const t of this.timers) clearInterval(t);
     this.timers = [];
     this.stream?.close();
@@ -713,8 +726,8 @@ export class MarketEngine extends EventEmitter {
       contractCheckedAt: this.market.contractCheckedAt,
       startupProblem: this.startupProblem,
       regime: this.market.regime(now),
-      connection: this.live.connection,
-      connectionDetail: this.live.connectionDetail,
+      connection: this.startupProblem ? "error" : this.live.connection,
+      connectionDetail: this.startupProblem ?? this.live.connectionDetail,
       connectionChangedAt: this.live.connectionChangedAt,
       feed: {
         messages: this.live.messages,
