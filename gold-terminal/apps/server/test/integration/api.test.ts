@@ -12,11 +12,13 @@ const clock = fakeClock(Date.parse(m.replayStart));
 const realNow = { t: 0 };
 const adapter = new FixtureAdapter(SYNTHETIC_DIR, 1, () => realNow.t);
 const fake = fakeClaude("valid");
+const TOKEN = "t".repeat(40);
+const auth = { authorization: `Bearer ${TOKEN}` };
 let ctx: Awaited<ReturnType<typeof bootstrap>>;
 
 beforeAll(async () => {
   ctx = await bootstrap({
-    config: testConfig({ ANTHROPIC_API_KEY: "x", ANALYST_MANUAL_COOLDOWN_SEC: "0" }),
+    config: testConfig({ ANTHROPIC_API_KEY: "x", ANALYST_MANUAL_COOLDOWN_SEC: "0", ADMIN_API_TOKEN: TOKEN }),
     logger: silentLogger,
     repo: new MemoryRepository(),
     adapter,
@@ -68,9 +70,9 @@ describe("HTTP API (fixture replay)", () => {
   });
 
   it("manages alert rules and validates input", async () => {
-    const created = await ctx.app.inject({ method: "POST", url: "/api/alerts/rules", payload: { name: "1m close", type: "candle_close", timeframe: "1m" } });
+    const created = await ctx.app.inject({ method: "POST", url: "/api/alerts/rules", headers: auth, payload: { name: "1m close", type: "candle_close", timeframe: "1m" } });
     expect(created.statusCode).toBe(201);
-    const bad = await ctx.app.inject({ method: "POST", url: "/api/alerts/rules", payload: { name: "x", type: "level_cross", timeframe: "7m" } });
+    const bad = await ctx.app.inject({ method: "POST", url: "/api/alerts/rules", headers: auth, payload: { name: "x", type: "level_cross", timeframe: "7m" } });
     expect(bad.statusCode).toBe(400);
     const rules = (await ctx.app.inject("/api/alerts/rules")).json();
     expect(rules.some((r: { id: string }) => r.id === created.json().id)).toBe(true);
@@ -95,7 +97,7 @@ describe("HTTP API (fixture replay)", () => {
   });
 
   it("runs a manual Claude analysis on the validated snapshot", async () => {
-    const r = await ctx.app.inject({ method: "POST", url: "/api/analysis/refresh" });
+    const r = await ctx.app.inject({ method: "POST", url: "/api/analysis/refresh", headers: auth });
     expect(r.statusCode).toBe(200);
     const body = r.json();
     expect(body.analysis.status).toBe("ok");
@@ -119,6 +121,62 @@ describe("HTTP API (fixture replay)", () => {
     while (!text.includes("event: status")) text += new TextDecoder().decode((await reader.read()).value);
     ac.abort();
     expect(text).toMatch(/"origin":"fixture"/);
+  });
+});
+
+describe("admin authentication", () => {
+  const mutating = [
+    { method: "POST", url: "/api/analysis/refresh" },
+    { method: "POST", url: "/api/alerts/rules", payload: { name: "n", type: "trend_change", timeframe: "1h" } },
+    { method: "PUT", url: "/api/alerts/rules/default-trend-1h", payload: { name: "n", type: "trend_change", timeframe: "1h" } },
+    { method: "DELETE", url: "/api/alerts/rules/default-trend-1h" },
+    { method: "POST", url: "/api/alerts/events/00000000-0000-0000-0000-000000000000/ack" },
+    { method: "GET", url: "/api/auth/check" },
+  ] as const;
+
+  it("rejects mutating requests without a valid bearer token", async () => {
+    const calls = fake.calls.length;
+    for (const r of mutating) {
+      const none = await ctx.app.inject({ ...r });
+      expect(none.statusCode, `${r.method} ${r.url}`).toBe(401);
+      expect(none.headers["www-authenticate"]).toMatch(/^Bearer/);
+      const wrong = await ctx.app.inject({ ...r, headers: { authorization: `Bearer ${"x".repeat(40)}` } });
+      expect(wrong.statusCode, `${r.method} ${r.url}`).toBe(401);
+      const malformed = await ctx.app.inject({ ...r, headers: { authorization: TOKEN } });
+      expect(malformed.statusCode).toBe(401);
+    }
+    // Nothing was changed or spent.
+    expect(fake.calls.length).toBe(calls);
+    expect((await ctx.repo.listRules()).some((r) => r.id === "default-trend-1h")).toBe(true);
+  });
+
+  it("accepts the correct token and keeps read endpoints public", async () => {
+    expect((await ctx.app.inject({ url: "/api/auth/check", headers: auth })).statusCode).toBe(200);
+    expect((await ctx.app.inject({ method: "DELETE", url: "/api/alerts/rules/default-trend-1h", headers: auth })).statusCode).toBe(200);
+    for (const url of ["/api/state", "/api/trend", "/api/alerts/rules", "/api/history", "/api/analysis"]) {
+      expect((await ctx.app.inject(url)).statusCode, url).toBe(200);
+    }
+    expect((await ctx.app.inject("/api/health")).json().adminAuthConfigured).toBe(true);
+  });
+
+  it("fails closed when no admin token is configured", async () => {
+    const b = await bootstrap({ config: testConfig({ ADMIN_API_TOKEN: "" }), logger: silentLogger, repo: new MemoryRepository(), adapter: new FixtureAdapter(SYNTHETIC_DIR), startEngine: false });
+    const r = await b.app.inject({ method: "POST", url: "/api/alerts/rules", headers: auth, payload: { name: "n", type: "trend_change", timeframe: "1h" } });
+    expect(r.statusCode).toBe(503);
+    expect(r.json().error).toBe("admin_token_not_configured");
+    expect((await b.repo.listRules()).some((x) => x.name === "n")).toBe(false);
+    await b.app.close();
+  });
+
+  it("refuses to register a mutating route without the guard", async () => {
+    const b = await bootstrap({ config: testConfig({ ADMIN_API_TOKEN: TOKEN }), logger: silentLogger, repo: new MemoryRepository(), adapter: new FixtureAdapter(SYNTHETIC_DIR), startEngine: false });
+    expect(() => b.app.post("/api/unguarded", async () => ({}))).toThrow(/must use the admin guard/);
+    expect(() => b.app.get("/api/read-only", async () => ({}))).not.toThrow();
+    await b.app.close();
+  });
+
+  it("rejects short tokens in configuration", () => {
+    expect(() => testConfig({ ADMIN_API_TOKEN: "short" })).toThrow(/at least 32/);
   });
 });
 

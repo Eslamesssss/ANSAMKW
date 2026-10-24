@@ -33,6 +33,17 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().optional(),
 
+  /**
+   * Bearer token required by every mutating endpoint (alert rules, acks,
+   * manual Claude refresh). Unset = those endpoints refuse all requests.
+   * Generate with: openssl rand -hex 32
+   */
+  ADMIN_API_TOKEN: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined))
+    .pipe(z.string().min(32, "ADMIN_API_TOKEN must be at least 32 characters").optional()),
+
   TWELVEDATA_API_KEY: z.string().optional(),
   TWELVEDATA_REST_URL: z.string().default("https://api.twelvedata.com"),
   TWELVEDATA_WS_URL: z.string().default("wss://ws.twelvedata.com/v1/quotes/price"),

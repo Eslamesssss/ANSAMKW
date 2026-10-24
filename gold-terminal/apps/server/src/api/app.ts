@@ -7,6 +7,7 @@ import type { AnalystService } from "../ai/analyst";
 import type { Config } from "../config";
 import type { Repository } from "../db/repository";
 import type { MarketEngine } from "../engine/engine";
+import { adminGuard } from "./auth";
 
 export interface AppDeps {
   config: Config;
@@ -28,7 +29,7 @@ export interface BuiltApp {
 export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
   const { config, repo, engine, analyst } = deps;
   const app = Fastify({ logger: deps.logger ?? false });
-  await app.register(cors, { origin: config.CORS_ORIGINS.split(",").map((s) => s.trim()), methods: ["GET", "POST", "PUT", "DELETE"] });
+  await app.register(cors, { origin: config.CORS_ORIGINS.split(",").map((s) => s.trim()), methods: ["GET", "POST", "PUT", "DELETE"], allowedHeaders: ["Content-Type", "Authorization"] });
 
   const clients = new Set<SseClient>();
   let nextId = 1;
@@ -45,6 +46,18 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
     }
   };
 
+  // Read endpoints are public market data; everything that changes state or spends money needs the admin token.
+  const requireAdmin = adminGuard(config.ADMIN_API_TOKEN);
+  const admin = { preHandler: requireAdmin };
+  // Safety net: a state-changing route registered without the guard fails at startup.
+  app.addHook("onRoute", (route) => {
+    const methods = ([] as string[]).concat(route.method);
+    const guarded = ([] as unknown[]).concat(route.preHandler ?? []).includes(requireAdmin);
+    if (methods.some((m) => !["GET", "HEAD", "OPTIONS"].includes(m)) && !guarded) {
+      throw new Error(`Mutating route ${methods.join(",")} ${route.url} must use the admin guard`);
+    }
+  });
+
   const noFeed = (reply: FastifyReply) =>
     reply.code(503).send({ error: "market feed not running", detail: deps.startupProblem ?? "engine not started" });
 
@@ -55,7 +68,10 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
     feedRunning: !!engine?.started,
     startupProblem: deps.startupProblem,
     analystConfigured: analyst.enabled,
+    adminAuthConfigured: !!config.ADMIN_API_TOKEN,
   }));
+
+  app.get("/api/auth/check", admin, async () => ({ ok: true }));
 
   app.get("/api/state", async () => {
     if (!engine) {
@@ -98,7 +114,7 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
     return { budget: await analyst.budget(), items: await repo.listAnalyses(limit) };
   });
 
-  app.post("/api/analysis/refresh", async (_req, reply) => {
+  app.post("/api/analysis/refresh", admin, async (_req, reply) => {
     if (!engine) return noFeed(reply);
     const result = await analyst.run({ kind: "manual" });
     if (result.analysis) broadcast("analysis", result.analysis);
@@ -113,21 +129,21 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
     const raw = { ...(body as Record<string, unknown>), id: id ?? (body as { id?: string })?.id ?? randomUUID() };
     return alertRuleSchema.safeParse(raw);
   };
-  app.post("/api/alerts/rules", async (req, reply) => {
+  app.post("/api/alerts/rules", admin, async (req, reply) => {
     const r = ruleBody(req.body);
     if (!r.success) return reply.code(400).send({ error: "invalid rule", issues: r.error.issues });
     await repo.saveRule(r.data);
     await engine?.reloadRules();
     return reply.code(201).send(r.data);
   });
-  app.put<{ Params: { id: string } }>("/api/alerts/rules/:id", async (req, reply) => {
+  app.put<{ Params: { id: string } }>("/api/alerts/rules/:id", admin, async (req, reply) => {
     const r = ruleBody(req.body, req.params.id);
     if (!r.success) return reply.code(400).send({ error: "invalid rule", issues: r.error.issues });
     await repo.saveRule(r.data);
     await engine?.reloadRules();
     return r.data;
   });
-  app.delete<{ Params: { id: string } }>("/api/alerts/rules/:id", async (req, reply) => {
+  app.delete<{ Params: { id: string } }>("/api/alerts/rules/:id", admin, async (req, reply) => {
     const ok = await repo.deleteRule(req.params.id);
     await engine?.reloadRules();
     return ok ? { ok } : reply.code(404).send({ error: "not found" });
@@ -137,7 +153,7 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
     const q = z.object({ limit: z.coerce.number().int().min(1).max(500).default(50), before: z.coerce.number().optional() }).parse(req.query);
     return repo.listAlertEvents({ limit: q.limit, before: q.before });
   });
-  app.post<{ Params: { id: string } }>("/api/alerts/events/:id/ack", async (req) => {
+  app.post<{ Params: { id: string } }>("/api/alerts/events/:id/ack", admin, async (req) => {
     await repo.acknowledgeAlert(req.params.id, Date.now());
     return { ok: true };
   });

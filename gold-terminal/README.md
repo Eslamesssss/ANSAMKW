@@ -84,7 +84,7 @@ Requirements: Node 22+, PostgreSQL 16 (or Docker).
 
 ```bash
 cd gold-terminal
-cp .env.example .env          # set TWELVEDATA_API_KEY and ANTHROPIC_API_KEY
+cp .env.example .env          # set TWELVEDATA_API_KEY, ANTHROPIC_API_KEY and ADMIN_API_TOKEN
 docker compose up --build
 # web http://localhost:3000 · API http://localhost:4000
 ```
@@ -144,17 +144,35 @@ Claude is replaced by a stand-in that answers using only references present in t
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/api/health` | mode, database, feed and analyst status |
+| GET | `/api/health` | mode, database, feed, analyst and admin-auth status |
+| GET | `/api/auth/check` 🔒 | validates the admin token |
 | GET | `/api/state` | price view, engine status, analyst budget |
 | GET | `/api/candles?tf=1h&limit=500` | closed candles, forming bar, EMA series, swings, events, levels |
 | GET | `/api/trend` | all timeframe trend readings |
 | GET | `/api/snapshot` | current analyst input snapshot |
-| POST | `/api/analysis/refresh` | manual Claude analysis (cooldown and caps apply) |
+| POST | `/api/analysis/refresh` 🔒 | manual Claude analysis (cooldown and caps apply) |
 | GET | `/api/analysis` | recent analyses + budget |
-| GET/POST/PUT/DELETE | `/api/alerts/rules[/:id]` | alert rules |
-| GET | `/api/alerts/events` · POST `/api/alerts/events/:id/ack` | alert feed |
+| GET · POST/PUT/DELETE 🔒 | `/api/alerts/rules[/:id]` | alert rules |
+| GET · POST 🔒 | `/api/alerts/events` · `/api/alerts/events/:id/ack` | alert feed, acknowledge |
 | GET | `/api/history[/:id]` | alerts with outcomes; detail includes the input snapshot |
 | GET | `/api/snapshots/:id` | stored snapshot |
 | GET | `/api/stream` | SSE: `price`, `status`, `close`, `alert`, `analysis`, `gap` |
 
-Mutating endpoints have no authentication. Run the API behind your own reverse proxy and auth before exposing it beyond localhost. The server-side cost caps bound Claude spend either way.
+🔒 = requires the admin bearer token.
+
+### Authentication
+
+Every state-changing endpoint (all `POST`/`PUT`/`DELETE` routes) requires `Authorization: Bearer <ADMIN_API_TOKEN>`:
+
+- **Fails closed.** With no `ADMIN_API_TOKEN` set, those endpoints return `503 admin_token_not_configured`. A missing or wrong token gets `401`.
+- **No leak.** Tokens are compared as SHA-256 digests in constant time, and the configured token must be at least 32 characters.
+- **Can't be forgotten.** The server refuses to start if a non-GET route is registered without the guard.
+- **Read endpoints stay public:** prices, candles, trends, analyses, history and the SSE stream. Treat the API as public read-only market data.
+- **In the UI,** click **Unlock admin** in the top bar and paste the token. It is checked against `GET /api/auth/check`, then kept only in that browser's `localStorage` (never in the build). **Lock** forgets it. A token the server rejects, for example after rotation, is dropped automatically.
+
+```bash
+openssl rand -hex 32   # put the result in ADMIN_API_TOKEN
+curl -X POST http://localhost:4000/api/analysis/refresh -H "Authorization: Bearer $ADMIN_API_TOKEN"
+```
+
+This is a single shared operator token, not per-user accounts. Over plain HTTP the token travels in clear text, so serve the API over HTTPS (e.g. behind a TLS reverse proxy) anywhere beyond localhost. The server-side cost caps bound Claude spend regardless.

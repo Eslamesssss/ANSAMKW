@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
+import { useAdminToken } from "@/lib/auth";
 import { fmtDateTime, fmtPrice } from "@/lib/format";
 import type { AlertEvent, AlertRule, Timeframe } from "@/lib/types";
 import { TIMEFRAMES } from "./ChartPanel";
@@ -34,6 +35,7 @@ export function AlertsPanel({ live, onDismiss, notificationsEnabled, onEnableNot
   const [rules, setRules] = useState<AlertRule[]>([]);
   const [recent, setRecent] = useState<AlertEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const token = useAdminToken();
 
   const loadRules = () => api<AlertRule[]>("/api/alerts/rules").then(setRules).catch((e) => setError((e as Error).message));
   useEffect(() => {
@@ -44,17 +46,27 @@ export function AlertsPanel({ live, onDismiss, notificationsEnabled, onEnableNot
     if (live[0]) setRecent((r) => [live[0]!, ...r.filter((x) => x.id !== live[0]!.id)].slice(0, 50));
   }, [live]);
 
+  const run = async (fn: () => Promise<unknown>) => {
+    setError(null);
+    try {
+      await fn();
+      return true;
+    } catch (e) {
+      setError((e as Error).message);
+      return false;
+    }
+  };
   const ack = async (id: string) => {
-    await api(`/api/alerts/events/${id}/ack`, { method: "POST" }).catch(() => {});
+    if (!(await run(() => api(`/api/alerts/events/${id}/ack`, { method: "POST" })))) return;
     setRecent((r) => r.map((a) => (a.id === id ? { ...a, acknowledgedAt: Date.now() } : a)));
     onDismiss(id);
   };
   const toggle = async (r: AlertRule) => {
-    await api(`/api/alerts/rules/${r.id}`, { method: "PUT", body: JSON.stringify({ ...r, enabled: !r.enabled }) });
+    await run(() => api(`/api/alerts/rules/${r.id}`, { method: "PUT", body: JSON.stringify({ ...r, enabled: !r.enabled }) }));
     void loadRules();
   };
   const remove = async (r: AlertRule) => {
-    await api(`/api/alerts/rules/${r.id}`, { method: "DELETE" });
+    await run(() => api(`/api/alerts/rules/${r.id}`, { method: "DELETE" }));
     void loadRules();
   };
 
@@ -79,6 +91,7 @@ export function AlertsPanel({ live, onDismiss, notificationsEnabled, onEnableNot
             <span>Confirmed candle closes only · deduplicated</span>
             {!notificationsEnabled && <button className="text-gold-2 hover:underline" onClick={onEnableNotifications}>Enable browser notifications</button>}
           </div>
+          {error && <div className="px-4 py-1.5 text-[11.5px] text-bear">{error}</div>}
           {recent.length === 0 ? (
             <Empty>No alerts yet.</Empty>
           ) : (
@@ -96,7 +109,11 @@ export function AlertsPanel({ live, onDismiss, notificationsEnabled, onEnableNot
                       close {fmtPrice(a.price)} · candle {fmtDateTime(a.candleOpenTime)} · fired {fmtDateTime(a.triggeredAt)}
                     </div>
                   </div>
-                  {!a.acknowledgedAt && <Button onClick={() => ack(a.id)}>Ack</Button>}
+                  {!a.acknowledgedAt && (
+                    <Button onClick={() => ack(a.id)} disabled={!token} title={!token ? "Unlock admin to acknowledge" : undefined}>
+                      Ack
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -105,6 +122,7 @@ export function AlertsPanel({ live, onDismiss, notificationsEnabled, onEnableNot
       ) : (
         <div>
           {error && <div className="px-4 py-2 text-[11.5px] text-bear">{error}</div>}
+          {!token && <div className="border-b border-line/70 px-4 py-1.5 text-[11px] text-ink-3">Read-only: unlock admin (top bar) to change rules.</div>}
           <ul className="max-h-[260px] divide-y divide-line/60 overflow-y-auto">
             {rules.map((r) => (
               <li key={r.id} className="flex items-center justify-between gap-2 px-4 py-2 text-[12px]">
@@ -116,13 +134,13 @@ export function AlertsPanel({ live, onDismiss, notificationsEnabled, onEnableNot
                   </div>
                 </div>
                 <div className="flex shrink-0 gap-1">
-                  <Button onClick={() => toggle(r)}>{r.enabled ? "Disable" : "Enable"}</Button>
-                  <Button tone="danger" onClick={() => remove(r)}>✕</Button>
+                  <Button onClick={() => toggle(r)} disabled={!token}>{r.enabled ? "Disable" : "Enable"}</Button>
+                  <Button tone="danger" onClick={() => remove(r)} disabled={!token}>✕</Button>
                 </div>
               </li>
             ))}
           </ul>
-          <RuleForm onCreated={loadRules} />
+          {token && <RuleForm onCreated={loadRules} />}
         </div>
       )}
     </Panel>

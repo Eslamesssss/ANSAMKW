@@ -3,6 +3,7 @@
 import { fmtFull } from "@/lib/format";
 import type { TerminalState } from "@/lib/types";
 import { useNow } from "@/lib/useTerminal";
+import { AdminAccess } from "./AdminAccess";
 import { Badge, Dot } from "./ui";
 
 export function TopBar({ state, streamConnected }: { state: TerminalState | null; streamConnected: boolean }) {
@@ -31,6 +32,7 @@ export function TopBar({ state, streamConnected }: { state: TerminalState | null
           </span>
           <span className="num text-[11.5px] text-ink-2">{now ? fmtFull(now) : ""}</span>
           {origin === "fixture" && state?.status && <span className="num text-[11.5px] text-warn">Replay clock {fmtFull(state.status.now)}</span>}
+          <AdminAccess />
         </div>
       </div>
       {origin === "fixture" && (

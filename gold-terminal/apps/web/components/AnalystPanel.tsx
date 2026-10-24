@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
+import { useAdminToken } from "@/lib/auth";
 import { fmtFull, fmtPrice } from "@/lib/format";
 import type { Analysis, AnalystBudget, MarketSnapshot } from "@/lib/types";
 import { useNow } from "@/lib/useTerminal";
@@ -19,6 +20,7 @@ export function AnalystPanel({ analysis, budget, onNew, disabled }: { analysis: 
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const now = useNow();
+  const token = useAdminToken();
 
   useEffect(() => {
     setSnapshot(null);
@@ -51,7 +53,7 @@ export function AnalystPanel({ analysis, budget, onNew, disabled }: { analysis: 
     <Panel
       title={<>Claude analyst</>}
       right={
-        <Button tone="gold" onClick={refresh} disabled={busy || disabled || !budget?.configured || cooldownLeft > 0} title={!budget?.configured ? "ANTHROPIC_API_KEY not configured on the server" : undefined}>
+        <Button tone="gold" onClick={refresh} disabled={busy || disabled || !budget?.configured || !token || cooldownLeft > 0} title={!budget?.configured ? "ANTHROPIC_API_KEY not configured on the server" : !token ? "Unlock admin to run analysis" : undefined}>
           {busy ? "Analysing…" : cooldownLeft > 0 ? `Refresh (${cooldownLeft}s)` : "Refresh analysis"}
         </Button>
       }
