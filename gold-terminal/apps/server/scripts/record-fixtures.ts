@@ -10,8 +10,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TIMEFRAMES, TWELVE_DATA_INTERVAL } from "@gold/core";
 import WebSocket from "ws";
-import { loadConfig } from "../src/config";
+import { loadConfig, loadDotEnv } from "../src/config";
 
+loadDotEnv();
 const cfg = loadConfig();
 if (!cfg.TWELVEDATA_API_KEY) {
   console.error("TWELVEDATA_API_KEY is required to record fixtures");

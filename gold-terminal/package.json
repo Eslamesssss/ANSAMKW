@@ -12,8 +12,8 @@
     "dev:server": "npm run dev -w @gold/server",
     "dev:web": "npm run dev -w @gold/web",
     "db:migrate": "npm run migrate -w @gold/server",
-    "connectivity": "npm run connectivity -w @gold/server",
-    "fixtures:record": "npm run fixtures:record -w @gold/server"
+    "connectivity": "npm run connectivity -w @gold/server --",
+    "fixtures:record": "npm run fixtures:record -w @gold/server --"
   },
   "engines": { "node": ">=20.11" }
 }

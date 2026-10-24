@@ -570,10 +570,9 @@ export class MarketEngine extends EventEmitter {
   chartData(tf: Timeframe, limit: number) {
     const st = this.tf.get(tf)!;
     const closed = st.closed.slice(-limit);
-    const all = this.window(tf);
-    const closes = all.map((c) => c.close);
-    const offset = all.length - closed.length;
-    const series = (period: number) => ema(closes, period).slice(Math.max(0, offset));
+    // EMAs over all bars in memory, aligned 1:1 with the returned candles.
+    const closes = st.closed.map((c) => c.close);
+    const series = (period: number) => ema(closes, period).slice(closes.length - closed.length);
     const price = this.live.last?.price ?? closed[closed.length - 1]?.close ?? 0;
     return {
       timeframe: tf,

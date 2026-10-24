@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { TIMEFRAMES, type Timeframe } from "@gold/core";
 import { z } from "zod";
 
@@ -75,6 +76,11 @@ const envSchema = z.object({
 });
 
 export type Config = z.infer<typeof envSchema> & { timeframes: readonly Timeframe[] };
+
+/** Load a local .env (cwd) into process.env for development; real environment variables win. */
+export function loadDotEnv(file = ".env"): void {
+  if (existsSync(file)) process.loadEnvFile(file);
+}
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const parsed = envSchema.safeParse(env);

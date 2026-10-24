@@ -7,10 +7,11 @@
  */
 import Anthropic from "@anthropic-ai/sdk";
 import { formatCairo } from "@gold/core";
-import { loadConfig } from "../src/config";
+import { loadConfig, loadDotEnv } from "../src/config";
 import { CreditBudget } from "../src/market/twelvedata/creditBudget";
 import { TwelveDataAdapter } from "../src/market/twelvedata/adapter";
 
+loadDotEnv();
 const cfg = loadConfig();
 const skipAnthropic = process.argv.includes("--skip-anthropic");
 const wsSeconds = Number(process.argv.find((a) => a.startsWith("--ws-seconds="))?.split("=")[1] ?? 20);

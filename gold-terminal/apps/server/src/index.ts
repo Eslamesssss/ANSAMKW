@@ -1,7 +1,8 @@
 import pino from "pino";
 import { bootstrap } from "./bootstrap";
-import { loadConfig } from "./config";
+import { loadConfig, loadDotEnv } from "./config";
 
+loadDotEnv();
 const config = loadConfig();
 const logger = pino({ level: config.LOG_LEVEL });
 
