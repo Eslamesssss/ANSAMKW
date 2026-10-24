@@ -36,14 +36,15 @@ function answer(s: MarketSnapshot, invent: boolean): AnalystOutput {
   const above = s.references.filter((r) => r.price > price).sort((a, b) => a.price - b.price);
   const below = s.references.filter((r) => r.price < price).sort((a, b) => b.price - a.price);
   const scenarios: AnalystOutput["scenarios"] = [];
-  if (above.length >= 2 && below.length >= 1) {
+  const target = above.find((r) => above[0] && r.price > above[0].price);
+  if (above.length >= 2 && below.length >= 1 && target) {
     scenarios.push({
       direction: "bullish",
       title_ar: "سيناريو صاعد",
       trigger_ar: "إغلاق 1h فوق أقرب resistance",
       trigger_ref: above[0]!.id,
       invalidation_ref: below[0]!.id,
-      target_refs: [above[1]!.id],
+      target_refs: [target.id],
       evidence: [{ ref: above[0]!.id, explanation_ar: "أقرب resistance" }],
     });
   }

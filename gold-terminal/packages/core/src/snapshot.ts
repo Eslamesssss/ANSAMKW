@@ -67,6 +67,58 @@ export const marketSnapshotSchema = z.object({
   references: z.array(referenceSchema),
   trigger: z.object({ kind: z.enum(["manual", "event"]), eventIds: z.array(z.string()) }),
   dataQuality: z.array(z.string()),
+  /** Contract the data belongs to; all prices are in `quoteAsset`. */
+  contract: z
+    .object({
+      exchange: z.string(),
+      symbol: z.string(),
+      contractType: z.string(),
+      status: z.string(),
+      quoteAsset: z.string(),
+      marginAsset: z.string(),
+      tickSize: finite,
+      stepSize: finite,
+      minQty: finite,
+      minNotional: finite.nullable(),
+    })
+    .nullable()
+    .default(null),
+  /** Perpetual-specific state at snapshot time. */
+  derivatives: z
+    .object({
+      markPrice: finite.nullable(),
+      indexPrice: finite.nullable(),
+      /** last − index, in quote asset. */
+      basis: finite.nullable(),
+      basisBps: finite.nullable(),
+      fundingRate: finite.nullable(),
+      nextFundingTime: iso.nullable(),
+      fundingIntervalHours: finite.nullable(),
+      openInterest: finite.nullable(),
+      openInterestUsdt: finite.nullable(),
+      openInterestChange1h: finite.nullable(),
+      volume24h: finite.nullable(),
+      quoteVolume24h: finite.nullable(),
+      change24hPct: finite.nullable(),
+    })
+    .nullable()
+    .default(null),
+  book: z
+    .object({
+      bestBid: finite,
+      bestAsk: finite,
+      spread: finite,
+      spreadBps: finite,
+      /** (bid qty − ask qty) / total over the top levels, −1..1. */
+      imbalanceTop10: finite.nullable(),
+      ageMs: z.number().nonnegative(),
+    })
+    .nullable()
+    .default(null),
+  indexRegime: z
+    .object({ regime: z.enum(["underlying_hours", "off_hours"]), scheduled: z.string(), indexStatic: z.boolean(), note: z.string() })
+    .nullable()
+    .default(null),
 });
 export type MarketSnapshot = z.infer<typeof marketSnapshotSchema>;
 

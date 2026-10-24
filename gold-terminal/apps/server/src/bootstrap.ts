@@ -11,8 +11,8 @@ import type { Repository } from "./db/repository";
 import { MarketEngine, type Logger } from "./engine/engine";
 import type { MarketDataAdapter } from "./market/adapter";
 import { FixtureAdapter } from "./market/fixture";
-import { CreditBudget } from "./market/twelvedata/creditBudget";
-import { TwelveDataAdapter } from "./market/twelvedata/adapter";
+import { BinanceFuturesAdapter } from "./market/binance/adapter";
+import { WeightBudget } from "./market/binance/weightBudget";
 
 /** Starter rules created on first run; users can edit or delete them. */
 export const DEFAULT_RULES: AlertRule[] = [
@@ -60,16 +60,14 @@ export async function bootstrap(opts: BootstrapOptions) {
       now = fx.clock;
       adapter = fx;
       logger.warn({ kind: fx.manifest.kind, dir: fx.dir }, "FIXTURE MODE: replaying fixture data — NOT LIVE");
-    } else if (!config.TWELVEDATA_API_KEY) {
-      startupProblem = "TWELVEDATA_API_KEY is not set: live market data unavailable. No prices are shown until credentials are configured.";
-      logger.warn({}, startupProblem);
     } else {
-      adapter = new TwelveDataAdapter({
-        apiKey: config.TWELVEDATA_API_KEY,
-        symbol: config.SYMBOL,
-        restUrl: config.TWELVEDATA_REST_URL,
-        wsUrl: config.TWELVEDATA_WS_URL,
-        budget: new CreditBudget(config.TWELVEDATA_CREDITS_PER_MINUTE, config.TWELVEDATA_CREDITS_PER_DAY),
+      // Public market data only: no API key is read or sent.
+      adapter = new BinanceFuturesAdapter({
+        restUrl: config.BINANCE_REST_URL,
+        wsMarketUrl: config.BINANCE_WS_MARKET_URL,
+        wsBookUrl: config.BINANCE_WS_BOOK_URL,
+        // 2400/min is Binance's published default; replaced by the value in exchangeInfo.
+        budget: new WeightBudget(2400, config.BINANCE_WEIGHT_SAFETY),
         log: (m, d) => logger.warn({ detail: d }, m),
       });
     }
@@ -102,7 +100,13 @@ export async function bootstrap(opts: BootstrapOptions) {
       if (r.analysis) broadcast("analysis", r.analysis);
     });
     let lastStatusPush = 0;
-    engine.on("heartbeat", ({ now: t }) => {
+    let lastMarketPush = 0;
+    engine.on("heartbeat", () => {
+      const t = Date.now();
+      if (t - lastMarketPush >= 1000) {
+        lastMarketPush = t;
+        broadcast("market", engine.marketView());
+      }
       if (t - lastStatusPush >= 5000) {
         lastStatusPush = t;
         broadcast("status", engine.status());

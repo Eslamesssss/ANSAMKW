@@ -1,6 +1,6 @@
 "use client";
 
-import { fmtDateTime } from "@/lib/format";
+import { fmtAge, fmtDateTime } from "@/lib/format";
 import type { TerminalState } from "@/lib/types";
 import { Badge, Empty, KV, Panel } from "./ui";
 
@@ -13,15 +13,35 @@ export function SourceStatus({ state }: { state: TerminalState | null }) {
       ) : (
         <div className="space-y-3 p-4">
           <div>
-            <KV k="Origin" v={s.origin === "fixture" ? "FIXTURE (not live)" : "Live provider"} />
-            <KV k="Session" v={s.session.open ? "Open" : s.session.reason.replace(/_/g, " ")} />
-            <KV k="Bid/ask from feed" v={s.feed.providesBidAsk ? "Yes (indicative)" : "No"} />
+            <KV k="Origin" v={s.origin === "fixture" ? "FIXTURE (not live)" : "Binance USDⓈ-M Futures (public)"} />
+            <KV k="Instrument" v={s.contract ? `${s.contract.symbol} · ${s.contract.baseAsset}/${s.contract.quoteAsset} · settles ${s.contract.marginAsset}` : "not verified"} />
+            <KV k="Exchange status" v={s.contract?.status ?? "—"} />
+            <KV k="Spec checked" v={fmtDateTime(s.contractCheckedAt)} />
+            <KV k="Index regime" v={s.regime.regime === "underlying_hours" ? "underlying hours" : "off-hours method"} />
             {s.credits && (
-              <>
-                <KV k="Credits (minute)" v={`${s.credits.usedLastMinute} / ${s.credits.perMinute}`} />
-                <KV k="Credits (today)" v={`${s.credits.usedToday} / ${s.credits.perDay}${s.credits.providerRemaining != null ? ` · provider left ${s.credits.providerRemaining}` : ""}`} />
-              </>
+              <KV
+                k="Request weight (1m)"
+                v={`${Math.max(s.credits.usedLocal, s.credits.usedServer)} / ${s.credits.safetyCap} (limit ${s.credits.limitPerMinute})${s.credits.blockReason ? ` · blocked: ${s.credits.blockReason}` : ""}`}
+              />
             )}
+            <KV k="Clock offset" v={s.feed.clockOffsetMs != null ? `${Math.round(s.feed.clockOffsetMs)} ms` : "—"} />
+          </div>
+          <div>
+            <div className="panel-title mb-1">WebSocket streams</div>
+            <table className="w-full text-[12px]">
+              <tbody>
+                {s.streams.map((h) => (
+                  <tr key={h.stream} className="border-t border-line/60">
+                    <td className="py-1 font-semibold text-ink-2">{h.stream}</td>
+                    <td className="num py-1 text-ink-2">{h.messages}</td>
+                    <td className="num py-1 text-ink-2">{h.ageMs === null ? "never" : `${fmtAge(h.ageMs)} ago`}</td>
+                    <td className="py-1 text-right">
+                      <Badge tone={!h.stale ? "bull" : h.stream === "trade" ? "neutral" : "warn"}>{!h.stale ? "live" : h.stream === "trade" ? "quiet" : "stale"}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           <div>
             <div className="panel-title mb-1">Candles (closed)</div>
@@ -39,12 +59,10 @@ export function SourceStatus({ state }: { state: TerminalState | null }) {
                 ))}
               </tbody>
             </table>
-            <p className="mt-1.5 text-[10.5px] leading-snug text-ink-3">confirmed = provider REST closed bar · derived = aggregated from provider-confirmed 1m bars. Times shown in Africa/Cairo.</p>
+            <p className="mt-1.5 text-[10.5px] leading-snug text-ink-3">confirmed = final Binance kline (stream or REST), cross-checked over REST · derived = aggregated from confirmed 1m bars. Times in Africa/Cairo.</p>
           </div>
           {s.pendingConfirmations.length > 0 && (
-            <div className="text-[11.5px] text-warn">
-              Awaiting provider confirmation: {s.pendingConfirmations.map((p) => `${p.timeframe} ${fmtDateTime(p.openTime)}`).join(", ")}
-            </div>
+            <div className="text-[11.5px] text-ink-3">REST cross-checks queued: {s.pendingConfirmations.map((p) => `${p.timeframe} ${fmtDateTime(p.openTime)}`).join(", ")}</div>
           )}
           {s.dataQuality.length > 0 && (
             <ul className="space-y-1 rounded-md border border-warn/30 bg-warn/5 p-2 text-[11.5px] text-warn">

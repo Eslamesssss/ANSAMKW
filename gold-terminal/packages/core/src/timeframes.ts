@@ -74,13 +74,3 @@ export function aggregateCandles(source: readonly Candle[], target: Timeframe, n
   }
   return out.filter((c) => isBucketClosed(c.openTime, target, nowMs));
 }
-
-/** Twelve Data interval names for each timeframe. */
-export const TWELVE_DATA_INTERVAL: Record<Timeframe, string> = {
-  "1m": "1min",
-  "5m": "5min",
-  "15m": "15min",
-  "1h": "1h",
-  "4h": "4h",
-  "1d": "1day",
-};

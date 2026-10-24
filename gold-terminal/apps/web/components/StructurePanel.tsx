@@ -31,7 +31,7 @@ export function StructurePanel({ data }: { data: ChartData | null }) {
           </ul>
         </div>
         <div>
-          <div className="panel-title mb-1.5">Support / resistance</div>
+          <div className="panel-title mb-1.5">Support / resistance (USDT)</div>
           <ul className="space-y-1 text-[12px]">
             {data.levels.map((l) => (
               <li key={l.id} className="flex items-center justify-between gap-2">

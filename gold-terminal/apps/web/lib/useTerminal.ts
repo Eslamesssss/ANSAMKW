@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, API_BASE } from "./api";
-import type { AlertEvent, Analysis, EngineStatus, PriceView, TerminalState, Timeframe } from "./types";
+import type { AlertEvent, Analysis, ContractSpec, EngineStatus, MarketView, PriceView, TerminalState, Timeframe } from "./types";
 
 export interface Terminal {
   state: TerminalState | null;
+  market: MarketView | null;
+  contract: ContractSpec | null;
   error: string | null;
   streamConnected: boolean;
   liveAlerts: AlertEvent[];
@@ -22,6 +24,7 @@ export interface Terminal {
 
 export function useTerminal(): Terminal {
   const [state, setState] = useState<TerminalState | null>(null);
+  const [market, setMarket] = useState<MarketView | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [streamConnected, setStreamConnected] = useState(false);
   const [liveAlerts, setLiveAlerts] = useState<AlertEvent[]>([]);
@@ -45,6 +48,7 @@ export function useTerminal(): Terminal {
   useEffect(() => {
     void refresh();
     const poll = setInterval(refresh, 15_000);
+    api<MarketView>("/api/market").then(setMarket).catch(() => {});
     api<{ items: Analysis[] }>("/api/analysis?limit=1")
       .then((r) => r.items[0] && setLatestAnalysis(r.items[0]))
       .catch(() => {});
@@ -63,6 +67,7 @@ export function useTerminal(): Terminal {
       const price = { ...(JSON.parse((ev as MessageEvent).data) as PriceView), clientAt: Date.now() };
       setState((s) => (s ? { ...s, price } : s));
     });
+    es.addEventListener("market", (ev) => setMarket(JSON.parse((ev as MessageEvent).data) as MarketView));
     es.addEventListener("status", (ev) => {
       const status = JSON.parse((ev as MessageEvent).data) as EngineStatus;
       setState((s) => (s ? { ...s, status, connection: status.connection } : s));
@@ -72,7 +77,7 @@ export function useTerminal(): Terminal {
       setLiveAlerts((a) => [alert, ...a.filter((x) => x.id !== alert.id)].slice(0, 50));
       if (notifyRef.current && typeof Notification !== "undefined") {
         const tag = alert.dataOrigin === "fixture" ? "[FIXTURE] " : "";
-        new Notification(`${tag}XAU/USD · ${alert.title}`, { body: `Confirmed close · ${alert.price.toFixed(2)}`, tag: alert.dedupeKey });
+        new Notification(`${tag}XAUUSDT · ${alert.title}`, { body: `Confirmed close · ${alert.price.toFixed(2)} USDT`, tag: alert.dedupeKey });
       }
     });
     es.addEventListener("analysis", (ev) => setLatestAnalysis(JSON.parse((ev as MessageEvent).data) as Analysis));
@@ -93,6 +98,8 @@ export function useTerminal(): Terminal {
 
   return {
     state,
+    market,
+    contract: market?.contract ?? state?.status?.contract ?? null,
     error,
     streamConnected,
     liveAlerts,

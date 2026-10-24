@@ -23,13 +23,12 @@ const envSchema = z.object({
   LOG_LEVEL: z.string().default("info"),
 
   /**
-   * `live`: real provider (requires TWELVEDATA_API_KEY).
+   * `live`: Binance USDⓈ-M Futures XAUUSDT (public market data, no key).
    * `fixture`: replays recorded/synthetic fixture files; everything is labelled
    * as fixture data and never presented as live.
    */
   DATA_MODE: z.enum(["live", "fixture"]).default("live"),
   FIXTURE_DIR: z.string().default("../../fixtures/synthetic"),
-  SYMBOL: z.string().default("XAU/USD"),
 
   DATABASE_URL: z.string().optional(),
 
@@ -44,25 +43,31 @@ const envSchema = z.object({
     .transform((v) => (v ? v : undefined))
     .pipe(z.string().min(32, "ADMIN_API_TOKEN must be at least 32 characters").optional()),
 
-  TWELVEDATA_API_KEY: z.string().optional(),
-  TWELVEDATA_REST_URL: z.string().default("https://api.twelvedata.com"),
-  TWELVEDATA_WS_URL: z.string().default("wss://ws.twelvedata.com/v1/quotes/price"),
-  /** Plan limits; the scheduler never exceeds them. Defaults match the free Basic plan. */
-  TWELVEDATA_CREDITS_PER_MINUTE: int(8),
-  TWELVEDATA_CREDITS_PER_DAY: int(800),
-  /** REST `/price` polling interval used only while the WebSocket is down. 0 disables. */
-  PRICE_POLL_INTERVAL_SEC: int(0),
+  /**
+   * Binance USDⓈ-M Futures public market data (no API key). The symbol is
+   * fixed to XAUUSDT; only the endpoints are configurable.
+   */
+  BINANCE_REST_URL: z.string().url().default("https://fapi.binance.com"),
+  BINANCE_WS_MARKET_URL: z.string().default("wss://fstream.binance.com/market/stream"),
+  /** Book streams (bookTicker, depth). Set to the market URL if your region routes them there. */
+  BINANCE_WS_BOOK_URL: z.string().default("wss://fstream.binance.com/public/stream"),
+  /** Fraction of the exchange's per-minute request weight this app may use. */
+  BINANCE_WEIGHT_SAFETY: z.coerce.number().min(0.1).max(1).default(0.5),
+  OPEN_INTEREST_POLL_SEC: int(15),
+  CONTRACT_REFRESH_SEC: int(300),
+  /** REST price polling interval used only while the WebSocket is down. 0 disables. */
+  PRICE_POLL_INTERVAL_SEC: int(5),
   HISTORY_BARS: int(1000),
   /** Seconds after a minute boundary before asking the provider for the closed bar. */
   RECONCILE_DELAY_SEC: int(4),
-  /** Minimum seconds between 1m reconciliation fetches (raise on low-credit plans). */
+  /** Minimum seconds between 1m reconciliation fetches. */
   RECONCILE_INTERVAL_SEC: int(60),
-  /** Timeframes whose native provider bar is fetched at each close (others are derived from 1m). */
-  NATIVE_CONFIRM_TIMEFRAMES: tfList("1h,4h,1d"),
+  /** Timeframes whose native exchange bar is fetched over REST at each close (others are derived from 1m). */
+  NATIVE_CONFIRM_TIMEFRAMES: tfList("5m,15m,1h,4h,1d"),
 
   /** Freshness thresholds for the streaming price, per feed. */
-  PRICE_DELAYED_AFTER_MS: int(15_000),
-  PRICE_STALE_AFTER_MS: int(60_000),
+  PRICE_DELAYED_AFTER_MS: int(5_000),
+  PRICE_STALE_AFTER_MS: int(30_000),
 
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default("claude-opus-5-5"),

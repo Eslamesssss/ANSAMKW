@@ -55,6 +55,26 @@ describe("HTTP API (fixture replay)", () => {
     expect(snap.dataQuality[0]).toMatch(/FIXTURE DATA/);
   });
 
+  it("serves the validated contract and live derivatives/book state in USDT", async () => {
+    const c = (await ctx.app.inject("/api/contract")).json();
+    expect(c).toMatchObject({ symbol: "XAUUSDT", quoteAsset: "USDT", marginAsset: "USDT", baseAsset: "XAU" });
+    expect(c.tickSize).toBeGreaterThan(0);
+    const m = (await ctx.app.inject("/api/market")).json();
+    expect(m.symbol).toBe("XAUUSDT");
+    expect(m.origin).toBe("fixture");
+    expect(m.mark.markPrice).toBeGreaterThan(0);
+    expect(m.mark.indexPrice).toBeGreaterThan(0);
+    expect(m.bookTop.ask).toBeGreaterThan(m.bookTop.bid);
+    expect(m.depth.bids.length).toBe(20);
+    expect(m.openInterest.openInterest).toBeGreaterThan(0);
+    expect(m.funding.intervalHours).toBe(8);
+    expect(m.regime.regime).toBe("underlying_hours");
+    expect(m.streams.map((s: { stream: string }) => s.stream)).toEqual(expect.arrayContaining(["trade", "mark", "bookTicker", "depth", "ticker", "kline"]));
+    const state = (await ctx.app.inject("/api/state")).json();
+    expect(state.price.quoteAsset).toBe("USDT");
+    expect(state.price.priceKind).toBe("last");
+  });
+
   it("serves chart data with indicators, levels and structure", async () => {
     const r = await ctx.app.inject("/api/candles?tf=1h&limit=300");
     expect(r.statusCode).toBe(200);
@@ -180,13 +200,15 @@ describe("admin authentication", () => {
   });
 });
 
-describe("HTTP API without credentials", () => {
-  it("reports no_credentials and never shows a price", async () => {
-    const b = await bootstrap({ config: testConfig({ DATA_MODE: "live", TWELVEDATA_API_KEY: "" }), logger: silentLogger, repo: new MemoryRepository(), startEngine: false });
+describe("HTTP API in live mode", () => {
+  it("needs no API key for Binance public data and shows no price before the exchange sends one", async () => {
+    const b = await bootstrap({ config: testConfig({ DATA_MODE: "live" }), logger: silentLogger, repo: new MemoryRepository(), startEngine: false });
+    expect(b.engine?.adapter.id).toBe("binance-usdm");
+    expect(b.engine?.symbol).toBe("XAUUSDT");
     const state = (await b.app.inject("/api/state")).json();
-    expect(state.connection).toBe("no_credentials");
-    expect(state.price).toBeNull();
-    expect((await b.app.inject("/api/candles?tf=1h")).statusCode).toBe(503);
+    expect(state.price.price).toBeNull();
+    expect(state.price.bid).toBeNull();
+    expect((await b.app.inject("/api/contract")).statusCode).toBe(503);
     await b.app.close();
   });
 });

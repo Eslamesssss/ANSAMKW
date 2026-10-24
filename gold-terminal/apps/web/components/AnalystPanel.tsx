@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { useAdminToken } from "@/lib/auth";
 import { fmtFull, fmtPrice } from "@/lib/format";
-import type { Analysis, AnalystBudget, MarketSnapshot } from "@/lib/types";
+import type { Analysis, AnalystBudget, MarketSnapshot, SizerPreset } from "@/lib/types";
 import { useNow } from "@/lib/useTerminal";
 import { Badge, Button, Empty, Panel } from "./ui";
 
@@ -15,7 +15,7 @@ const ACTION: Record<string, { label: string; ar: string; tone: "warn" | "bull" 
   MONITOR_BOTH: { label: "Monitor both", ar: "راقب الاتنين", tone: "info" },
 };
 
-export function AnalystPanel({ analysis, budget, onNew, disabled }: { analysis: Analysis | null; budget: AnalystBudget | null; onNew: (a: Analysis) => void; disabled: boolean }) {
+export function AnalystPanel({ analysis, budget, onNew, disabled, onUseScenario }: { analysis: Analysis | null; budget: AnalystBudget | null; onNew: (a: Analysis) => void; disabled: boolean; onUseScenario?: (p: SizerPreset) => void }) {
   const [snapshot, setSnapshot] = useState<MarketSnapshot | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -108,6 +108,23 @@ export function AnalystPanel({ analysis, budget, onNew, disabled }: { analysis: 
                 <div key={i} className={`rounded-md border p-3 ${sc.direction === "bullish" ? "border-bull/30" : "border-bear/30"}`}>
                   <div className="mb-1 flex items-center justify-between">
                     <Badge tone={sc.direction === "bullish" ? "bull" : "bear"}>{sc.direction} scenario</Badge>
+                    {onUseScenario && ref(sc.trigger_ref) && ref(sc.invalidation_ref) && (
+                      <button
+                        className="text-[11px] text-gold-2 hover:underline"
+                        title="Prefill the USDT position sizer with this scenario's trigger, invalidation and targets"
+                        onClick={() =>
+                          onUseScenario({
+                            side: sc.direction === "bullish" ? "long" : "short",
+                            entry: ref(sc.trigger_ref)!.price,
+                            stop: ref(sc.invalidation_ref)!.price,
+                            targets: sc.target_refs.map((t) => ref(t)?.price).filter((v): v is number => typeof v === "number"),
+                            label: `Claude ${sc.direction} scenario`,
+                          })
+                        }
+                      >
+                        Use in sizer →
+                      </button>
+                    )}
                   </div>
                   <div className="ar text-[13px]">
                     <div className="font-semibold text-ink">{sc.title_ar}</div>
@@ -159,7 +176,7 @@ export function AnalystPanel({ analysis, budget, onNew, disabled }: { analysis: 
 function RefCell({ label, r, extra }: { label: string; r?: { id: string; price: number; description: string }; extra?: string }) {
   return (
     <div className="rounded border border-line bg-panel-2 px-2 py-1" title={r ? `${r.id}: ${r.description}` : "unresolved"}>
-      <div className="text-[10px] uppercase tracking-wider text-ink-3">{label}</div>
+      <div className="text-[10px] uppercase tracking-wider text-ink-3">{label} (USDT)</div>
       <div className="text-ink">
         {r ? fmtPrice(r.price) : "—"} {extra && <span className="text-ink-3">{extra}</span>}
       </div>

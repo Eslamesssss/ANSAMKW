@@ -1,5 +1,5 @@
 # GOLD INTELLIGENCE TERMINAL V1
-#   cp .env.example .env        # add TWELVEDATA_API_KEY, ANTHROPIC_API_KEY and ADMIN_API_TOKEN
+#   cp .env.example .env        # set ADMIN_API_TOKEN (and ANTHROPIC_API_KEY for the analyst); Binance needs no key
 #   docker compose up --build
 # Web: http://localhost:3000   API: http://localhost:4000
 services:

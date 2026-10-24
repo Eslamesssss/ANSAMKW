@@ -58,15 +58,16 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
     }
   });
 
+  const problem = () => engine?.startupProblem ?? deps.startupProblem;
   const noFeed = (reply: FastifyReply) =>
-    reply.code(503).send({ error: "market feed not running", detail: deps.startupProblem ?? "engine not started" });
+    reply.code(503).send({ error: "market feed not running", detail: problem() ?? "engine not started" });
 
   app.get("/api/health", async () => ({
     ok: true,
     dataMode: config.DATA_MODE,
     database: repo.kind,
     feedRunning: !!engine?.started,
-    startupProblem: deps.startupProblem,
+    startupProblem: problem(),
     analystConfigured: analyst.enabled,
     adminAuthConfigured: !!config.ADMIN_API_TOKEN,
   }));
@@ -77,14 +78,14 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
     if (!engine) {
       return {
         origin: config.DATA_MODE,
-        connection: config.DATA_MODE === "live" && !config.TWELVEDATA_API_KEY ? "no_credentials" : "error",
-        startupProblem: deps.startupProblem,
+        connection: "error",
+        startupProblem: problem(),
         price: null,
         status: null,
         analyst: await analyst.budget(),
       };
     }
-    return { origin: engine.origin, connection: engine.live.connection, startupProblem: null, price: engine.priceView(), status: engine.status(), analyst: await analyst.budget() };
+    return { origin: engine.origin, connection: engine.live.connection, startupProblem: problem(), price: engine.priceView(), status: engine.status(), analyst: await analyst.budget() };
   });
 
   app.get("/api/candles", async (req, reply) => {
@@ -101,6 +102,16 @@ export async function buildApp(deps: AppDeps): Promise<BuiltApp> {
       const last = st.closed[st.closed.length - 1];
       return { ...st.trend, structureTrend: st.structure.trend, lastStatus: last?.status ?? null, lastSwingHigh: st.structure.lastSwingHigh, lastSwingLow: st.structure.lastSwingLow };
     });
+  });
+
+  app.get("/api/market", async (_req, reply) => {
+    if (!engine) return noFeed(reply);
+    return engine.marketView();
+  });
+
+  app.get("/api/contract", async (_req, reply) => {
+    if (!engine?.market.contract) return reply.code(503).send({ error: "contract not verified", detail: problem() ?? "contract not loaded yet" });
+    return engine.market.contract;
   });
 
   app.get("/api/snapshot", async (_req, reply) => {

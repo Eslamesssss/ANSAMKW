@@ -17,8 +17,10 @@ export class LivePriceState {
   outOfOrder = 0;
   /** EWMA of the interval between distinct updates (ms). */
   avgIntervalMs: number | null = null;
-  /** EWMA of receive time minus provider time (ms). Includes clock skew; providers send 1s resolution. */
+  /** EWMA of receive time minus exchange event time (ms), corrected by the measured clock offset. */
   avgLatencyMs: number | null = null;
+  /** Exchange clock minus local clock, from the provider's server-time endpoint. */
+  clockOffsetMs = 0;
 
   constructor(
     private delayedAfterMs: number,
@@ -41,8 +43,8 @@ export class LivePriceState {
       const dt = u.receivedAt - prev.receivedAt;
       this.avgIntervalMs = this.avgIntervalMs === null ? dt : this.avgIntervalMs * 0.9 + dt * 0.1;
     }
-    if (u.source.endsWith("-ws")) {
-      const lat = Math.max(0, u.receivedAt - u.providerTime);
+    if (/-ws(:|$)/.test(u.source)) {
+      const lat = Math.max(0, u.receivedAt + this.clockOffsetMs - u.providerTime);
       this.avgLatencyMs = this.avgLatencyMs === null ? lat : this.avgLatencyMs * 0.9 + lat * 0.1;
     }
     this.distinct++;
@@ -56,9 +58,14 @@ export class LivePriceState {
     this.connectionDetail = detail;
   }
 
-  freshness(now: number, marketOpen: boolean): Freshness {
-    if (!this.last) return marketOpen ? "no_data" : "market_closed";
-    const age = now - this.last.receivedAt;
+  /**
+   * Freshness of the feed. `activityAt` is the latest message on any market
+   * stream: trades can pause in a quiet market while mark/book updates prove
+   * the feed is alive.
+   */
+  freshness(now: number, marketOpen: boolean, activityAt: number | null = this.last?.receivedAt ?? null): Freshness {
+    if (!this.last && activityAt === null) return marketOpen ? "no_data" : "market_closed";
+    const age = now - Math.max(activityAt ?? 0, this.last?.receivedAt ?? 0);
     if (!marketOpen && age > this.delayedAfterMs) return "market_closed";
     if (age > this.staleAfterMs) return "stale";
     if (age > this.delayedAfterMs) return "delayed";

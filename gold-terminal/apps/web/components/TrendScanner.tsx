@@ -48,7 +48,7 @@ export function TrendScanner({ version, selected, onSelect }: { version: number;
                 <tr key={r.timeframe} onClick={() => onSelect(r.timeframe)} className={`cursor-pointer border-t border-line/60 hover:bg-white/3 ${r.timeframe === selected ? "bg-gold/5" : ""}`} title={r.rules.join(" · ")}>
                   <td className="px-3 py-2 font-semibold text-ink">{r.timeframe}</td>
                   <td className="px-2 py-2">
-                    <span className={`rounded border px-1.5 py-0.5 text-[10.5px] font-semibold uppercase ${stateBg(r.state)}`}>{r.state === "insufficient_data" ? "no data" : r.state}</span>
+                    <span className={`rounded border px-1.5 py-0.5 text-[10.5px] font-semibold uppercase ${stateBg(r.state)}`}>{r.state === "insufficient_data" ? `warm-up ${r.barsUsed}/600` : r.state}</span>
                   </td>
                   <td className="num px-2 py-2 text-right text-ink">{fmtPrice(r.close)}</td>
                   <td className="num px-2 py-2 text-ink-2">

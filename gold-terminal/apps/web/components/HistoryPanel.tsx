@@ -45,9 +45,9 @@ export function HistoryPanel({ version }: { version: number }) {
                 <th className="px-4 py-2 font-medium">Fired (Cairo)</th>
                 <th className="px-2 py-2 font-medium">TF</th>
                 <th className="px-2 py-2 font-medium">Event</th>
-                <th className="px-2 py-2 text-right font-medium">Close</th>
+                <th className="px-2 py-2 text-right font-medium">Close (USDT)</th>
                 {HORIZONS.map((h) => (
-                  <th key={h.min} className="px-2 py-2 text-right font-medium" title="Close change after horizon · max high / min low within it">
+                  <th key={h.min} className="px-2 py-2 text-right font-medium" title="Close change (USDT) after horizon · max high / min low within it">
                     {h.label}
                   </th>
                 ))}

@@ -115,6 +115,11 @@ function knownNumbers(s: MarketSnapshot): number[] {
     for (const v of [t.close, t.ema20, t.ema50, t.ema200, t.atr14]) if (v !== null) out.push(v);
     for (const e of t.recentEvents) if (e.level !== null) out.push(e.level);
   }
+  if (s.derivatives) {
+    const d = s.derivatives;
+    for (const v of [d.markPrice, d.indexPrice, d.openInterest, d.openInterestUsdt, d.volume24h, d.quoteVolume24h]) if (v !== null) out.push(v);
+  }
+  if (s.book) out.push(s.book.bestBid, s.book.bestAsk);
   // Years in dates are legitimate numbers too.
   const year = new Date(s.generatedAt).getUTCFullYear();
   out.push(year, year - 1);

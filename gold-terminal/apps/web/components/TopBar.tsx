@@ -18,12 +18,11 @@ export function TopBar({ state, streamConnected }: { state: TerminalState | null
           <div className="grid h-8 w-8 place-items-center rounded-md border border-gold/40 bg-gold/10 text-[13px] font-bold text-gold-2">Au</div>
           <div>
             <h1 className="text-[13px] font-bold tracking-[0.18em] text-ink">GOLD INTELLIGENCE TERMINAL <span className="text-gold">V1</span></h1>
-            <p className="text-[11px] text-ink-3">XAU/USD market intelligence · analysis only, no order execution</p>
+            <p className="text-[11px] text-ink-3">Binance USDⓈ-M · XAUUSDT Gold/USDT perpetual · analysis only, no order execution</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {origin === "fixture" ? <Badge tone="warn">Fixture replay · not live</Badge> : origin === "live" && conn !== "no_credentials" ? <Badge tone="gold">Live data</Badge> : null}
-          {conn === "no_credentials" && <Badge tone="danger">No provider credentials</Badge>}
+          {origin === "fixture" ? <Badge tone="warn">Fixture replay · not live</Badge> : origin === "live" && state?.status?.contract ? <Badge tone="gold">Live · Binance</Badge> : null}
           <span className="flex items-center gap-1.5 text-[11.5px] text-ink-2">
             <Dot tone={connTone} /> Feed: {conn}
           </span>

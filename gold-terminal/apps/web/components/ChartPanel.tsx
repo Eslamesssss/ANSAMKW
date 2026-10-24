@@ -2,6 +2,7 @@
 
 import {
   CandlestickSeries,
+  HistogramSeries,
   ColorType,
   createChart,
   createSeriesMarkers,
@@ -9,6 +10,7 @@ import {
   LineSeries,
   LineStyle,
   type CandlestickData,
+  type HistogramData,
   type IChartApi,
   type IPriceLine,
   type ISeriesApi,
@@ -38,7 +40,7 @@ const sec = (ms: number) => Math.floor(ms / 1000) as UTCTimestamp;
 export function ChartPanel({ tf, onTf, price, closeVersion, onData }: { tf: Timeframe; onTf: (tf: Timeframe) => void; price: PriceView | null; closeVersion: number; onData: (d: ChartData | null) => void }) {
   const host = useRef<HTMLDivElement>(null);
   const chart = useRef<IChartApi | null>(null);
-  const series = useRef<{ candles: ISeriesApi<"Candlestick">; e20: ISeriesApi<"Line">; e50: ISeriesApi<"Line">; e200: ISeriesApi<"Line">; markers: ISeriesMarkersPluginApi<Time> } | null>(null);
+  const series = useRef<{ candles: ISeriesApi<"Candlestick">; volume: ISeriesApi<"Histogram">; e20: ISeriesApi<"Line">; e50: ISeriesApi<"Line">; e200: ISeriesApi<"Line">; markers: ISeriesMarkersPluginApi<Time> } | null>(null);
   const priceLines = useRef<IPriceLine[]>([]);
   const lastBar = useRef<{ openTime: number; open: number; high: number; low: number; close: number; formingFromServer: boolean } | null>(null);
   const lastClosedOpen = useRef<number>(0);
@@ -69,7 +71,10 @@ export function ChartPanel({ tf, onTf, price, closeVersion, onData }: { tf: Time
     });
     const candles = c.addSeries(CandlestickSeries, { upColor: COLORS.bull, downColor: COLORS.bear, borderVisible: false, wickUpColor: COLORS.bull, wickDownColor: COLORS.bear, priceLineVisible: true });
     const line = (color: string) => c.addSeries(LineSeries, { color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
-    series.current = { candles, e20: line(COLORS.ema20), e50: line(COLORS.ema50), e200: line(COLORS.ema200), markers: createSeriesMarkers(candles, []) };
+    // Exchange-reported base volume (XAU) on an overlay scale in the bottom fifth of the pane.
+    const volume = c.addSeries(HistogramSeries, { priceScaleId: "vol", priceFormat: { type: "volume" }, lastValueVisible: false, priceLineVisible: false });
+    c.priceScale("vol").applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+    series.current = { candles, volume, e20: line(COLORS.ema20), e50: line(COLORS.ema50), e200: line(COLORS.ema200), markers: createSeriesMarkers(candles, []) };
     chart.current = c;
     return () => {
       c.remove();
@@ -106,6 +111,7 @@ export function ChartPanel({ tf, onTf, price, closeVersion, onData }: { tf: Time
     if (!s || !chart.current) return;
     if (!data) {
       s.candles.setData([]);
+      s.volume.setData([]);
       s.e20.setData([]);
       s.e50.setData([]);
       s.e200.setData([]);
@@ -120,6 +126,11 @@ export function ChartPanel({ tf, onTf, price, closeVersion, onData }: { tf: Time
       lastBar.current = { ...data.forming, formingFromServer: true };
     } else lastBar.current = null;
     s.candles.setData(bars);
+    const vols: HistogramData<Time>[] = data.candles
+      .filter((c) => c.volume !== null)
+      .map((c) => ({ time: sec(c.openTime), value: c.volume!, color: c.close >= c.open ? "rgba(34,192,138,0.35)" : "rgba(240,82,90,0.35)" }));
+    if (data.forming?.volume != null && (!lastClosed || data.forming.openTime > lastClosed.openTime)) vols.push({ time: sec(data.forming.openTime), value: data.forming.volume, color: COLORS.forming });
+    s.volume.setData(vols);
     const lineData = (vals: (number | null)[]): LineData<Time>[] => vals.flatMap((v, i) => (v === null || !data.candles[i] ? [] : [{ time: sec(data.candles[i]!.openTime), value: v }]));
     s.e20.setData(show.ema ? lineData(data.ema20) : []);
     s.e50.setData(show.ema ? lineData(data.ema50) : []);
@@ -179,7 +190,7 @@ export function ChartPanel({ tf, onTf, price, closeVersion, onData }: { tf: Time
     <Panel
       title={
         <>
-          Chart <Badge tone="neutral">{tf}</Badge>
+          XAUUSDT · USDT <Badge tone="neutral">{tf}</Badge>
           {data?.origin === "fixture" && <Badge tone="warn">fixture</Badge>}
         </>
       }

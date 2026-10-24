@@ -1,15 +1,26 @@
-import type { AlertRule, AnalystOutput, Candle, MarketSnapshot, RankedLevel, Swing, StructureEvent, Timeframe, TrendReading } from "@gold/core";
+import type { AlertRule, AnalystOutput, Candle, ContractSpec, IndexRegimeStatus, MarketSnapshot, RankedLevel, Swing, StructureEvent, Timeframe, TrendReading } from "@gold/core";
 
-export type { AlertRule, AnalystOutput, Candle, MarketSnapshot, RankedLevel, Swing, StructureEvent, Timeframe, TrendReading };
+export type { AlertRule, AnalystOutput, Candle, ContractSpec, IndexRegimeStatus, MarketSnapshot, RankedLevel, Swing, StructureEvent, Timeframe, TrendReading };
 
 export interface PriceView {
   symbol: string;
   origin: "live" | "fixture";
+  quoteAsset: string;
+  /** Last traded price. */
   price: number | null;
   priceKind: "mid" | "last" | "indicative" | null;
   executable: false;
+  /** Best bid/ask from the exchange order book. */
   bid: number | null;
   ask: number | null;
+  bidQty: number | null;
+  askQty: number | null;
+  bookTime: number | null;
+  spread: number | null;
+  spreadBps: number | null;
+  markPrice: number | null;
+  indexPrice: number | null;
+  lastTradeAgeMs: number | null;
   source: string | null;
   providerTime: number | null;
   receivedAt: number | null;
@@ -22,12 +33,26 @@ export interface PriceView {
   clientAt?: number;
 }
 
+export interface StreamHealth {
+  stream: string;
+  lastAt: number | null;
+  ageMs: number | null;
+  staleAfterMs: number;
+  stale: boolean;
+  messages: number;
+}
+
 export interface EngineStatus {
   now: number;
   origin: "live" | "fixture";
   provider: string;
   symbol: string;
   session: { open: boolean; reason: string };
+  contract: ContractSpec | null;
+  contractCheckedAt: number | null;
+  startupProblem: string | null;
+  regime: IndexRegimeStatus;
+  streams: StreamHealth[];
   connection: string;
   connectionDetail: string | null;
   connectionChangedAt: number;
@@ -38,11 +63,12 @@ export interface EngineStatus {
     outOfOrder: number;
     avgUpdateIntervalMs: number | null;
     avgLatencyMs: number | null;
+    clockOffsetMs: number | null;
     expectedUpdateIntervalMs: number | null;
     providesBidAsk: boolean;
     providesVolume: boolean;
   };
-  credits: { usedLastMinute: number; perMinute: number; usedToday: number; perDay: number; providerRemaining: number | null } | null;
+  credits: { limitPerMinute: number; safetyCap: number; usedLocal: number; usedServer: number; blockedForMs: number; blockReason: string | null } | null;
   timeframes: { timeframe: Timeframe; bars: number; lastClosedOpenTime: number | null; lastStatus: string | null; trend: string; initialised: boolean }[];
   pendingConfirmations: { timeframe: Timeframe; openTime: number; attempts: number }[];
   dataQuality: string[];
@@ -69,6 +95,35 @@ export interface TerminalState {
   price: PriceView | null;
   status: EngineStatus | null;
   analyst: AnalystBudget;
+}
+
+export interface MarketView {
+  symbol: string;
+  origin: "live" | "fixture";
+  contract: ContractSpec | null;
+  contractCheckedAt: number | null;
+  bookTop: { bid: number; bidQty: number; ask: number; askQty: number; exchangeTime: number; spread?: number; spreadBps?: number; mid?: number; ageMs: number } | null;
+  depth: { bids: [number, number][]; asks: [number, number][]; exchangeTime: number; ageMs: number; imbalanceTop10: number | null } | null;
+  mark: { markPrice: number; indexPrice: number; estimatedSettlePrice: number | null; fundingRate: number | null; nextFundingTime: number | null; exchangeTime: number; ageMs: number } | null;
+  basis: number | null;
+  basisBps: number | null;
+  markIndexSpread: number | null;
+  funding: { intervalHours?: number | null; intervalSource?: string | null; capRate?: number | null; floorRate?: number | null; lastFundingRate?: number | null; lastFundingTime?: number | null; currentRate: number | null; nextFundingTime: number | null };
+  ticker: { lastPrice: number; priceChange: number; priceChangePercent: number; high: number; low: number; volume: number; quoteVolume: number; exchangeTime: number } | null;
+  openInterest: { openInterest: number; time: number; notionalUsdt: number | null; change1h: number | null } | null;
+  constituents: { time: number; constituents: { exchange: string; symbol: string; weight: number | null; price: number | null }[] } | null;
+  regime: IndexRegimeStatus;
+  clockOffsetMs: number | null;
+  streams: StreamHealth[];
+}
+
+/** Scenario prices handed from the analyst panel to the position sizer. */
+export interface SizerPreset {
+  side: "long" | "short";
+  entry: number;
+  stop: number;
+  targets: number[];
+  label: string;
 }
 
 export interface ChartData {

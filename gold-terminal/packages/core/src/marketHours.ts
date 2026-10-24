@@ -1,13 +1,14 @@
 import { zonedParts } from "./time";
 
 /**
- * Spot gold (XAU/USD) OTC session, expressed in New York time so DST is handled:
+ * Underlying gold market session (the market Binance's TradFi index tracks),
+ * expressed in New York time so DST is handled:
  * - Weekly: opens Sunday 18:00 ET, closes Friday 17:00 ET.
  * - Daily maintenance break: 17:00–18:00 ET Monday–Thursday.
  *
- * This is a schedule, not a guarantee: holidays and provider outages are
- * detected separately from the feed (stale quotes, missing bars). When the
- * provider reports its own `is_market_open`, prefer that.
+ * This is a schedule, not a guarantee: holidays are detected from the data
+ * (a static index price; see regime.ts). The XAUUSDT perpetual itself trades
+ * outside these hours; its tradability comes from the exchange status.
  */
 export interface MarketSessionStatus {
   open: boolean;

@@ -1,20 +1,31 @@
 {
   "kind": "synthetic",
   "notLiveData": true,
-  "description": "SYNTHETIC seeded random walk in Twelve Data response format. NOT market data. For tests and offline UI development only.",
-  "symbol": "XAU/USD",
-  "format": "twelvedata",
+  "description": "SYNTHETIC — not market data, not Binance's real contract specification. Seeded random walk in Binance USDⓈ-M response format, for tests and offline UI development only.",
+  "symbol": "XAUUSDT",
+  "format": "binance-usdm",
   "recordedAt": null,
-  "replayStart": "2024-03-13T12:00:00.000Z",
-  "replayEnd": "2024-03-13T15:00:00.000Z",
-  "files": {
-    "1min": "time_series_1min.json",
-    "5min": "time_series_5min.json",
-    "15min": "time_series_15min.json",
-    "1h": "time_series_1h.json",
-    "4h": "time_series_4h.json",
-    "1day": "time_series_1day.json"
+  "replayStart": "2026-10-21T12:50:00.000Z",
+  "replayEnd": "2026-10-21T13:15:00.000Z",
+  "rest": {
+    "/fapi/v1/exchangeInfo": "exchangeInfo.json",
+    "/fapi/v1/premiumIndex": "premiumIndex.json",
+    "/fapi/v1/ticker/24hr": "ticker24hr.json",
+    "/fapi/v1/depth": "depth.json",
+    "/fapi/v1/ticker/bookTicker": "bookTicker.json",
+    "/fapi/v1/openInterest": "openInterest.json",
+    "/futures/data/openInterestHist": "openInterestHist.json",
+    "/fapi/v1/fundingInfo": "fundingInfo.json",
+    "/fapi/v1/fundingRate": "fundingRate.json",
+    "/fapi/v1/constituents": "constituents.json"
   },
-  "wsFrames": "ws_frames.jsonl",
-  "quote": "quote.json"
+  "klines": {
+    "1m": "klines_1m.json",
+    "5m": "klines_5m.json",
+    "15m": "klines_15m.json",
+    "1h": "klines_1h.json",
+    "4h": "klines_4h.json",
+    "1d": "klines_1d.json"
+  },
+  "wsFrames": "ws_frames.jsonl"
 }

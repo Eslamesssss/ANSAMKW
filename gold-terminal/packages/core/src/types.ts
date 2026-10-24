@@ -28,8 +28,8 @@ export interface Candle {
   low: number;
   close: number;
   /**
-   * Provider-reported volume. `null` when the provider does not report volume
-   * (Twelve Data reports none for XAU/USD). Never synthesised.
+   * Exchange-reported base-asset volume (Binance klines: XAU). `null` only when
+   * a source does not report volume. Never synthesised.
    */
   volume: number | null;
   status: CandleStatus;

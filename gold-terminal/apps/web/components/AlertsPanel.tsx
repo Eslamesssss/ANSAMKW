@@ -106,7 +106,7 @@ export function AlertsPanel({ live, onDismiss, notificationsEnabled, onEnableNot
                       {Boolean(a.detail?.late) && <Badge tone="warn">late</Badge>}
                     </div>
                     <div className="num mt-0.5 text-[11px] text-ink-3">
-                      close {fmtPrice(a.price)} · candle {fmtDateTime(a.candleOpenTime)} · fired {fmtDateTime(a.triggeredAt)}
+                      close {fmtPrice(a.price)} USDT · candle {fmtDateTime(a.candleOpenTime)} · fired {fmtDateTime(a.triggeredAt)}
                     </div>
                   </div>
                   {!a.acknowledgedAt && (
@@ -199,7 +199,7 @@ function RuleForm({ onCreated }: { onCreated: () => void }) {
           ))}
         </select>
         {(type === "level_cross" || type === "candle_close") && (
-          <input className={`${input} num`} placeholder={type === "level_cross" ? "Price (blank = detected levels)" : "Price (optional)"} value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" />
+          <input className={`${input} num`} placeholder={type === "level_cross" ? "Price USDT (blank = detected levels)" : "Price USDT (optional)"} value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" />
         )}
         {type === "candle_close" && price && (
           <select className={input} value={op} onChange={(e) => setOp(e.target.value)}>
